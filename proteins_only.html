@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Somascan_Analysis</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="proteins_only_files/libs/clipboard/clipboard.min.js"></script>
+<script src="proteins_only_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="proteins_only_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="proteins_only_files/libs/quarto-html/popper.min.js"></script>
+<script src="proteins_only_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="proteins_only_files/libs/quarto-html/anchor.min.js"></script>
+<link href="proteins_only_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="proteins_only_files/libs/quarto-html/quarto-syntax-highlighting-de070a7b0ab54f8780927367ac907214.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="proteins_only_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="proteins_only_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="proteins_only_files/libs/bootstrap/bootstrap-81267100e462c21b3d6c0d5bf76a3417.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Somascan_Analysis</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="read-in-the-adat-file-and-manipulate-the-dataframe" class="level1">
+<h1>Read in the adat file and manipulate the dataframe</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"SomaDataIO"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>═══════════════════════════════════════════════════════════════════════ Legal ══
+   SomaDataIO™
+   
+   Copyright © 2025 Standard BioTools, Inc.
+   
+   The `SomaDataIO` package is licensed under the MIT license
+   (`LICENSE.md`) and is intended solely for research use only ("RUO")
+   purposes. The code contained herein may *not* be used for
+   diagnostic, clinical, therapeutic, or other commercial purposes.
+   Further, "SomaDataIO" and "SomaLogic" are trademarks owned by
+   Standard BioTools, Inc. No license is hereby granted to these
+   trademarks other than for purposes of identifying the origin or
+   source of the Software. The above copyright notice and this
+   permission notice shall be included in all copies or substantial
+   portions of the Software.
+   
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+   HOLDER(S) BE LIABLE FOR ANY CLAIM, DAMAGES, WHETHER DIRECT OR
+   INDIRECT, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT
+   OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+════════════════════════════════════════════════════════════════════════════════</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'SomaDataIO'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:stats':
+
+    filter</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>master <span class="ot">&lt;-</span> <span class="fu">read_adat</span>(<span class="st">"~/Documents/R scripts/Soma_project/L0125004423_v5.0_EDTAPlasma.hybNorm.medNormInt.plateScale.calibrate.anmlQC.qcCheck.anmlSMP.20251008.adat"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(master)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>══ SomaScan Data ═══════════════════════════════════════════════════════════════
+     SomaScan version     v5.0 (11k)
+     Signal Space         11k
+     Attributes intact    ✓
+     Rows                 6
+     Columns              1545
+     Clinical Data        33
+     Features             1512
+── Column Meta ─────────────────────────────────────────────────────────────────
+ℹ SeqId, SeqIdVersion, SomaId, TargetFullName, Target, UniProt, EntrezGeneID,
+ℹ EntrezGeneSymbol, Organism, Units, Type, Dilution, PlateScale_Reference,
+ℹ CalReference, Cal_PLT41714, ColCheck, CalQcRatio_PLT41714_230421,
+ℹ QcReference_230421, Cal_PLT41754, CalQcRatio_PLT41754_230421, Dilution2
+── Tibble ──────────────────────────────────────────────────────────────────────
+# A tibble: 6 × 1,546
+  row_names      PlateId  PlateRunDate ScannerID  PlatePosition SlideId Subarray
+  &lt;chr&gt;          &lt;chr&gt;    &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;           &lt;dbl&gt;    &lt;dbl&gt;
+1 258740128933_1 PLT41714 2025-10-03   SG21348704 A1            2.59e11        1
+2 258740128942_1 PLT41714 2025-10-03   SG21348704 A10           2.59e11        1
+3 258740128943_1 PLT41714 2025-10-03   SG21348704 A11           2.59e11        1
+4 258740128934_1 PLT41714 2025-10-03   SG21348704 A2            2.59e11        1
+5 258740128935_1 PLT41714 2025-10-03   SG21348704 A3            2.59e11        1
+6 258740128936_1 PLT41714 2025-10-03   SG21348704 A4            2.59e11        1
+# ℹ 1,539 more variables: SampleId &lt;chr&gt;, SampleType &lt;chr&gt;,
+#   PercentDilution &lt;int&gt;, SampleMatrix &lt;chr&gt;, Barcode &lt;int&gt;, Barcode2d &lt;chr&gt;,
+#   SampleName &lt;chr&gt;, SampleNotes &lt;lgl&gt;, AliquotingNotes &lt;chr&gt;,
+#   SampleDescription &lt;chr&gt;, …
+════════════════════════════════════════════════════════════════════════════════</code></pre>
+</div>
+</div>
+<section id="manipulate-the-columns" class="level2">
+<h2 class="anchored" data-anchor-id="manipulate-the-columns">Manipulate the columns</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#remove calibrators and flagged samples</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> master <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span>SampleType <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Calibrator"</span>, <span class="st">"Buffer"</span>, <span class="st">"QC"</span>),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    RowCheck <span class="sc">!=</span> <span class="st">"FLAG"</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> <span class="fu">as_tibble</span>()</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#remove unwanted columns</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>PlateId,<span class="sc">-</span>PlateRunDate, <span class="sc">-</span>ScannerID, <span class="sc">-</span>PlatePosition, <span class="sc">-</span>SlideId, <span class="sc">-</span>Subarray,<span class="sc">-</span>PercentDilution,<span class="sc">-</span>SampleMatrix,<span class="sc">-</span>Barcode,<span class="sc">-</span>Barcode2d,<span class="sc">-</span>SampleNotes,<span class="sc">-</span>AliquotingNotes, <span class="sc">-</span>SampleDescription, <span class="sc">-</span>AssayNotes, <span class="sc">-</span>ExtIdentifier, <span class="sc">-</span>SsfExtId,<span class="sc">-</span>SampleGroup,<span class="sc">-</span>SubjectID, <span class="sc">-</span>CLI, <span class="sc">-</span>RMA, <span class="sc">-</span>HybControlNormScale,<span class="sc">-</span>NormScale_20, <span class="sc">-</span>NormScale_0_005, <span class="sc">-</span>NormScale_0_5, <span class="sc">-</span>ANMLFractionUsed_20, <span class="sc">-</span>ANMLFractionUsed_0_005, <span class="sc">-</span>ANMLFractionUsed_0_5,<span class="sc">-</span>SiteId,<span class="sc">-</span>TimePoint, <span class="sc">-</span>SampleName, <span class="sc">-</span>SampleType, <span class="sc">-</span>RowCheck)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(df) <span class="ot">=</span> <span class="cn">NULL</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="convert-seq-ids-to-uniprot" class="level2">
+<h2 class="anchored" data-anchor-id="convert-seq-ids-to-uniprot">convert seq IDs to Uniprot</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'readr' was built under R version 4.5.2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#load in the conversion key csv</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>map <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"seqid_to_uniprot.csv"</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#reformatting (eg. 10023-32 to seq.10023.32)</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>map <span class="ot">&lt;-</span> map <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">seqid_formatted =</span> <span class="fu">paste0</span>(<span class="st">"seq."</span>, <span class="fu">gsub</span>(<span class="st">"-"</span>,<span class="st">"."</span>,SeqId))</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co"># make the vector from the map df</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>id_map <span class="ot">&lt;-</span> <span class="fu">setNames</span>(map<span class="sc">$</span>UniProtID, map<span class="sc">$</span>seqid_formatted)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co"># don't rename the seqID column</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>old_names <span class="ot">&lt;-</span> <span class="fu">colnames</span>(df)</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>new_names <span class="ot">&lt;-</span> old_names</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>new_names[<span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  old_names[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">%in%</span> <span class="fu">names</span>(id_map),</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  id_map[old_names[<span class="sc">-</span><span class="dv">1</span>]],</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>  old_names[<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(df) <span class="ot">&lt;-</span> new_names</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a><span class="co">#remove any columns that still start with "seq" because these are controls</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df) <span class="ot">&lt;-</span> <span class="fu">make.unique</span>(<span class="fu">names</span>(df)) <span class="co"># some somamer sequences map to the same uniprotID but different regimes of the protein(cytoplasmic vs extracellular, etc. this makes the column names unique to avoid errors on dplyr.)</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span><span class="fu">starts_with</span>(<span class="st">"seq"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="add-a-timepoint-and-subject-id-column" class="level2">
+<h2 class="anchored" data-anchor-id="add-a-timepoint-and-subject-id-column">Add a Timepoint and Subject ID column</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Timepoint =</span> <span class="fu">str_extract</span>(SampleId, <span class="st">"D[1-5]$"</span>),       <span class="co"># extract D1–D5 at the end</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">SubjectID =</span> <span class="fu">str_remove</span>(SampleId, <span class="st">"D[1-5]$"</span>)         <span class="co"># remove D1–D5 to get the subject ID</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(SubjectID, <span class="at">.before =</span> SampleId) <span class="sc">%&gt;%</span>            <span class="co"># move SubjectID before SampleId</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(Timepoint, <span class="at">.after =</span> SampleId)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Timepoint <span class="ot">&lt;-</span> <span class="fu">factor</span>(df<span class="sc">$</span>Timepoint)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="log2-transformation-of-the-proteomics-data" class="level2">
+<h2 class="anchored" data-anchor-id="log2-transformation-of-the-proteomics-data">log2 transformation of the proteomics data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>df_log2 <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">log2</span>(.x)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="plot-analytes-of-interest" class="level1">
+<h1>Plot analytes of interest</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'ggplot2' was built under R version 4.5.2</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ forcats   1.0.1     ✔ purrr     1.2.0
+✔ ggplot2   4.0.1     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks SomaDataIO::filter(), stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Vector of target proteins</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>target_proteins <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"P05062"</span>, <span class="st">"P15559"</span>, <span class="st">"P21695"</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to long format for ggplot</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">all_of</span>(target_proteins),</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"Protein"</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"Expression"</span>)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary stats: mean and SE per group</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>summary_df <span class="ot">&lt;-</span> df_long <span class="sc">%&gt;%</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Protein, Timepoint) <span class="sc">%&gt;%</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_expr =</span> <span class="fu">mean</span>(Expression, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_expr =</span> <span class="fu">sd</span>(Expression, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>plot1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(summary_df, <span class="fu">aes</span>(<span class="at">x =</span> Timepoint, <span class="at">y =</span> mean_expr, <span class="at">fill =</span> Timepoint)) <span class="sc">+</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="st">"dodge"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">width =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> mean_expr <span class="sc">-</span> sd_expr, <span class="at">ymax =</span> mean_expr <span class="sc">+</span> sd_expr),</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>                <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.7</span>)) <span class="sc">+</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Protein, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">ncol =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>          <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">13</span>, <span class="at">margin =</span> <span class="fu">margin</span>(<span class="at">b=</span><span class="dv">20</span>)),</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>),</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">""</span>,</span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Draw"</span>,</span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Mean Expression"</span></span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="splsda" class="level1">
+<h1>sPLSDA</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mixOmics)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: MASS</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'MASS'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:dplyr':
+
+    select</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: lattice</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Loaded mixOmics 6.32.0
+Thank you for using mixOmics!
+Tutorials: http://mixomics.org
+Bookdown vignette: https://mixomicsteam.github.io/Bookdown
+Questions, issues: Follow the prompts at http://mixomics.org/contact-us
+Cite us:  citation('mixOmics')</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'mixOmics'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:purrr':
+
+    map</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>plsda_matrix <span class="ot">&lt;-</span> df_log2 <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>((<span class="fu">where</span>(is.numeric)))</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>plsda_response <span class="ot">&lt;-</span> df_log2<span class="sc">$</span>Timepoint</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co"># run the PLSDA</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>plsda_result <span class="ot">&lt;-</span> <span class="fu">splsda</span>(plsda_matrix, plsda_response, <span class="at">ncomp =</span> <span class="dv">3</span>, <span class="at">keepX =</span> <span class="fu">c</span>(<span class="dv">75</span>,<span class="dv">75</span>,<span class="dv">75</span>), <span class="at">scale =</span> T) <span class="co">#z scores the data within the plsda</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>PLS_scores <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(plsda_result<span class="sc">$</span>variates<span class="sc">$</span>X)</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>PLS_scores<span class="sc">$</span>Response <span class="ot">&lt;-</span> df_log2<span class="sc">$</span>Timepoint</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the result</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>explained_var <span class="ot">&lt;-</span> plsda_result<span class="sc">$</span>prop_expl_var<span class="sc">$</span>X</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>x_lab <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Component 1 ("</span>, <span class="fu">round</span>(explained_var[<span class="dv">1</span>] <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>), <span class="st">"%)"</span>)</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>y_lab <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Component 2 ("</span>, <span class="fu">round</span>(explained_var[<span class="dv">2</span>] <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>), <span class="st">"%)"</span>)</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>plsda_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(PLS_scores, <span class="fu">aes</span>(<span class="at">x =</span> comp1, <span class="at">y =</span> comp2, <span class="at">color =</span> Response, <span class="at">fill =</span> Response)) <span class="sc">+</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_ellipse</span>(<span class="at">type =</span> <span class="st">"norm"</span>, <span class="at">level =</span> <span class="fl">0.85</span>, <span class="at">geom =</span> <span class="st">"polygon"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="cn">NA</span>)<span class="sc">+</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_discrete</span>(<span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Proteins over Time"</span>,</span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> x_lab,</span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> y_lab,</span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Blood Draw Timepoint"</span>,</span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>)</span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>loadings <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(plsda_result<span class="sc">$</span>loadings<span class="sc">$</span>X) <span class="sc">%&gt;%</span></span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames_to_column</span>(<span class="at">var=</span><span class="st">"Protein"</span>)</span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>top20_loadings <span class="ot">&lt;-</span> loadings <span class="sc">%&gt;%</span></span>
+<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">abs_loading =</span> <span class="fu">abs</span>(comp1)) <span class="sc">%&gt;%</span></span>
+<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(abs_loading)) <span class="sc">%&gt;%</span></span>
+<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>)</span>
+<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a>loadings_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(top20_loadings, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(Protein, comp1), <span class="at">y =</span> comp1, <span class="at">fill =</span> comp1 <span class="sc">&gt;</span> <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"indianred3"</span>, <span class="st">"steelblue"</span>)) <span class="sc">+</span></span>
+<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb29-48"><a href="#cb29-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb29-49"><a href="#cb29-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Top 20 PLS Loadings (C2)"</span>,</span>
+<span id="cb29-50"><a href="#cb29-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Protein"</span>,</span>
+<span id="cb29-51"><a href="#cb29-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Loading Value"</span></span>
+<span id="cb29-52"><a href="#cb29-52" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb29-53"><a href="#cb29-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb29-54"><a href="#cb29-54" aria-hidden="true" tabindex="-1"></a><span class="co">#dir.create("PLSDA_results", showWarnings = FALSE)</span></span>
+<span id="cb29-55"><a href="#cb29-55" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(loadings, <span class="st">"PLSDA_results/PLSDA_loadings.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="stratified-bootstrapping-for-feature-stability-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="stratified-bootstrapping-for-feature-stability-analysis">Stratified Bootstrapping for feature stability analysis</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mixOmics)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="co"># this performs stratified resampling (subject-level bootstrapping), stores the variables from each component in each iteration, and then reports the frequencies of the variables in each model. Finally it selects variables per component whose frequency is &gt; 0.4.</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> df_log2 <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">where</span>(is.numeric)) <span class="sc">%&gt;%</span> <span class="fu">as.matrix</span>() <span class="co"># define the matrix</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> df_log2<span class="sc">$</span>Timepoint</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>SubjectID <span class="ot">&lt;-</span> df_log2<span class="sc">$</span>SubjectID</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>nboot <span class="ot">&lt;-</span> <span class="dv">500</span> <span class="co"># number of iterations</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>ncomp <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>keepX <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">75</span>, <span class="dv">75</span>, <span class="dv">75</span>)</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a><span class="co"># cluster bootstrap: sample SUBJECTS with replacement; keep all rows per subject</span></span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>cluster_boot_idx <span class="ot">&lt;-</span> <span class="cf">function</span>(subject_id) {</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>  subj <span class="ot">&lt;-</span> <span class="fu">unique</span>(subject_id)</span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>  boot_subj <span class="ot">&lt;-</span> <span class="fu">sample</span>(subj, <span class="fu">length</span>(subj), <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unlist</span>(<span class="fu">lapply</span>(boot_subj, <span class="cf">function</span>(s) <span class="fu">which</span>(subject_id <span class="sc">==</span> s)), <span class="at">use.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a><span class="co"># store selected variables per component across bootstraps</span></span>
+<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a>selected_vars <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">"list"</span>, ncomp)</span>
+<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">seq_len</span>(ncomp)) selected_vars[[k]] <span class="ot">&lt;-</span> <span class="fu">character</span>(<span class="dv">0</span>)</span>
+<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-29"><a href="#cb30-29" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- bootstrap loop ----</span></span>
+<span id="cb30-30"><a href="#cb30-30" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (b <span class="cf">in</span> <span class="fu">seq_len</span>(nboot)) {</span>
+<span id="cb30-31"><a href="#cb30-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-32"><a href="#cb30-32" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">cluster_boot_idx</span>(SubjectID)</span>
+<span id="cb30-33"><a href="#cb30-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-34"><a href="#cb30-34" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">splsda</span>(</span>
+<span id="cb30-35"><a href="#cb30-35" aria-hidden="true" tabindex="-1"></a>    X[idx, ],</span>
+<span id="cb30-36"><a href="#cb30-36" aria-hidden="true" tabindex="-1"></a>    Y[idx],</span>
+<span id="cb30-37"><a href="#cb30-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncomp =</span> ncomp,</span>
+<span id="cb30-38"><a href="#cb30-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">keepX =</span> keepX,</span>
+<span id="cb30-39"><a href="#cb30-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">scale =</span> <span class="cn">TRUE</span></span>
+<span id="cb30-40"><a href="#cb30-40" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb30-41"><a href="#cb30-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-42"><a href="#cb30-42" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">seq_len</span>(ncomp)) {</span>
+<span id="cb30-43"><a href="#cb30-43" aria-hidden="true" tabindex="-1"></a>    selected_vars[[k]] <span class="ot">&lt;-</span> <span class="fu">c</span>(selected_vars[[k]], <span class="fu">selectVar</span>(fit, <span class="at">comp =</span> k)<span class="sc">$</span>name)</span>
+<span id="cb30-44"><a href="#cb30-44" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb30-45"><a href="#cb30-45" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The SGCCA algorithm did not converge
+Warning: The SGCCA algorithm did not converge</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- variables per component with selection frequency ----</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>freq_tables <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">seq_len</span>(ncomp), <span class="cf">function</span>(k) {</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">Protein =</span> selected_vars[[k]]) <span class="sc">%&gt;%</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">count</span>(Protein) <span class="sc">%&gt;%</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">freq =</span> n <span class="sc">/</span> nboot) <span class="sc">%&gt;%</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(freq))</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(freq_tables) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Comp"</span>, <span class="fu">seq_len</span>(ncomp))</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>stable_vars_04 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(freq_tables, <span class="cf">function</span>(df) {</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>  df <span class="sc">%&gt;%</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(freq <span class="sc">&gt;</span> <span class="fl">0.4</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(Protein)</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="gsea-and-over-representation-analysis" class="level1">
+<h1>GSEA and Over-representation Analysis</h1>
+<ul>
+<li><p>starting with GSEA: get a list of log2 fold changes between groups of interest, as defined by the groups that clustered separately in PLSDA</p></li>
+<li><p>use the log2fold change to perform GO:BP</p></li>
+</ul>
+<section id="gsea" class="level2">
+<h2 class="anchored" data-anchor-id="gsea">GSEA</h2>
+<section id="get-the-log2fold-changes" class="level3">
+<h3 class="anchored" data-anchor-id="get-the-log2fold-changes">Get the log2fold changes</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(clusterProfiler)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code></code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>clusterProfiler v4.16.0 Learn more at https://yulab-smu.top/contribution-knowledge-mining/
+
+Please cite:
+
+Guangchuang Yu, Li-Gen Wang, Yanyan Han and Qing-Yu He.
+clusterProfiler: an R package for comparing biological themes among
+gene clusters. OMICS: A Journal of Integrative Biology. 2012,
+16(5):284-287</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'clusterProfiler'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:lattice':
+
+    dotplot</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:MASS':
+
+    select</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:purrr':
+
+    simplify</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:stats':
+
+    filter</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(enrichplot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>enrichplot v1.28.4 Learn more at https://yulab-smu.top/contribution-knowledge-mining/
+
+Please cite:
+
+S Xu, E Hu, Y Cai, Z Xie, X Luo, L Zhan, W Tang, Q Wang, B Liu, R Wang,
+W Xie, T Wu, L Xie, G Yu. Using clusterProfiler to characterize
+multiomics data. Nature Protocols. 2024, 19(11):3292-3320</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'enrichplot'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:lattice':
+
+    dotplot</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compute log2foldchange of D1 vs D2 and D2 vs D3</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="co"># D1 vs D2</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>fc_df_D1D2 <span class="ot">&lt;-</span> df_log2 <span class="sc">%&gt;%</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Timepoint <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"D1"</span>, <span class="st">"D2"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span><span class="fu">c</span>(SubjectID, SampleId, Timepoint),</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Protein"</span>,</span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"log2_expr"</span></span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_cols    =</span> <span class="fu">c</span>(SubjectID, Protein),</span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> Timepoint,</span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> log2_expr</span>
+<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(D1) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(D2)) <span class="sc">%&gt;%</span></span>
+<span id="cb45-17"><a href="#cb45-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log2_FC_D2_vs_D1 =</span> D2 <span class="sc">-</span> D1)</span>
+<span id="cb45-18"><a href="#cb45-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-19"><a href="#cb45-19" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb45-20"><a href="#cb45-20" aria-hidden="true" tabindex="-1"></a>ranks_df_D1D2 <span class="ot">&lt;-</span> fc_df_D1D2 <span class="sc">%&gt;%</span></span>
+<span id="cb45-21"><a href="#cb45-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Protein) <span class="sc">%&gt;%</span></span>
+<span id="cb45-22"><a href="#cb45-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">meanlog2fc =</span> <span class="fu">mean</span>(log2_FC_D2_vs_D1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb45-23"><a href="#cb45-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-24"><a href="#cb45-24" aria-hidden="true" tabindex="-1"></a><span class="co"># strip probe suffix like ".1" or ".2" from UniProt IDs. This is an artifact of multiple somamer seqIDs mapping to a single protein.</span></span>
+<span id="cb45-25"><a href="#cb45-25" aria-hidden="true" tabindex="-1"></a>ranks_df_D1D2 <span class="ot">&lt;-</span> ranks_df_D1D2 <span class="sc">%&gt;%</span></span>
+<span id="cb45-26"><a href="#cb45-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb45-27"><a href="#cb45-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">UNIPROT_raw =</span> Protein,</span>
+<span id="cb45-28"><a href="#cb45-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">UNIPROT =</span> <span class="fu">str_replace</span>(Protein, <span class="st">"</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+$"</span>, <span class="st">""</span>),   <span class="co"># removes trailing .&lt;digits&gt;</span></span>
+<span id="cb45-29"><a href="#cb45-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">meanlog2fc =</span> <span class="fu">as.numeric</span>(meanlog2fc)</span>
+<span id="cb45-30"><a href="#cb45-30" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb45-31"><a href="#cb45-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-32"><a href="#cb45-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Collapse duplicates created by stripping suffix. choose the probe with the largest absolute effect size. do not average.</span></span>
+<span id="cb45-33"><a href="#cb45-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-34"><a href="#cb45-34" aria-hidden="true" tabindex="-1"></a>ranks_df_D1D2 <span class="ot">&lt;-</span> ranks_df_D1D2 <span class="sc">%&gt;%</span></span>
+<span id="cb45-35"><a href="#cb45-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(UNIPROT) <span class="sc">%&gt;%</span></span>
+<span id="cb45-36"><a href="#cb45-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> <span class="fu">abs</span>(meanlog2fc), <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb45-37"><a href="#cb45-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb45-38"><a href="#cb45-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-39"><a href="#cb45-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-40"><a href="#cb45-40" aria-hidden="true" tabindex="-1"></a><span class="co">#D2 vs D3</span></span>
+<span id="cb45-41"><a href="#cb45-41" aria-hidden="true" tabindex="-1"></a>fc_df_D2D3 <span class="ot">&lt;-</span> df_log2 <span class="sc">%&gt;%</span></span>
+<span id="cb45-42"><a href="#cb45-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Timepoint <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"D2"</span>, <span class="st">"D3"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb45-43"><a href="#cb45-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb45-44"><a href="#cb45-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span><span class="fu">c</span>(SubjectID, SampleId, Timepoint),</span>
+<span id="cb45-45"><a href="#cb45-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Protein"</span>,</span>
+<span id="cb45-46"><a href="#cb45-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"log2_expr"</span></span>
+<span id="cb45-47"><a href="#cb45-47" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb45-48"><a href="#cb45-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb45-49"><a href="#cb45-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_cols    =</span> <span class="fu">c</span>(SubjectID, Protein),</span>
+<span id="cb45-50"><a href="#cb45-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> Timepoint,</span>
+<span id="cb45-51"><a href="#cb45-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> log2_expr</span>
+<span id="cb45-52"><a href="#cb45-52" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb45-53"><a href="#cb45-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(D2) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(D3)) <span class="sc">%&gt;%</span></span>
+<span id="cb45-54"><a href="#cb45-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log2_FC_D3_vs_D2 =</span> D3 <span class="sc">-</span> D2)</span>
+<span id="cb45-55"><a href="#cb45-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-56"><a href="#cb45-56" aria-hidden="true" tabindex="-1"></a>ranks_df_D2D3 <span class="ot">&lt;-</span> fc_df_D2D3 <span class="sc">%&gt;%</span></span>
+<span id="cb45-57"><a href="#cb45-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Protein) <span class="sc">%&gt;%</span></span>
+<span id="cb45-58"><a href="#cb45-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">meanlog2fc =</span> <span class="fu">mean</span>(log2_FC_D3_vs_D2, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb45-59"><a href="#cb45-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-60"><a href="#cb45-60" aria-hidden="true" tabindex="-1"></a>ranks_df_D2D3 <span class="ot">&lt;-</span> ranks_df_D2D3 <span class="sc">%&gt;%</span></span>
+<span id="cb45-61"><a href="#cb45-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb45-62"><a href="#cb45-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">UNIPROT_raw =</span> Protein,</span>
+<span id="cb45-63"><a href="#cb45-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">UNIPROT =</span> <span class="fu">str_replace</span>(Protein, <span class="st">"</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+$"</span>, <span class="st">""</span>),   <span class="co"># removes trailing .&lt;digits&gt;</span></span>
+<span id="cb45-64"><a href="#cb45-64" aria-hidden="true" tabindex="-1"></a>    <span class="at">meanlog2fc =</span> <span class="fu">as.numeric</span>(meanlog2fc)</span>
+<span id="cb45-65"><a href="#cb45-65" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb45-66"><a href="#cb45-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-67"><a href="#cb45-67" aria-hidden="true" tabindex="-1"></a>ranks_df_D2D3 <span class="ot">&lt;-</span> ranks_df_D2D3 <span class="sc">%&gt;%</span></span>
+<span id="cb45-68"><a href="#cb45-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(UNIPROT) <span class="sc">%&gt;%</span></span>
+<span id="cb45-69"><a href="#cb45-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> <span class="fu">abs</span>(meanlog2fc), <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb45-70"><a href="#cb45-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb45-71"><a href="#cb45-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-72"><a href="#cb45-72" aria-hidden="true" tabindex="-1"></a><span class="co"># D1 vs D3</span></span>
+<span id="cb45-73"><a href="#cb45-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-74"><a href="#cb45-74" aria-hidden="true" tabindex="-1"></a>fc_df_D1D3 <span class="ot">&lt;-</span> df_log2 <span class="sc">%&gt;%</span></span>
+<span id="cb45-75"><a href="#cb45-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Timepoint <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"D1"</span>, <span class="st">"D3"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb45-76"><a href="#cb45-76" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb45-77"><a href="#cb45-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span><span class="fu">c</span>(SubjectID, SampleId, Timepoint),</span>
+<span id="cb45-78"><a href="#cb45-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Protein"</span>,</span>
+<span id="cb45-79"><a href="#cb45-79" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"log2_expr"</span></span>
+<span id="cb45-80"><a href="#cb45-80" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb45-81"><a href="#cb45-81" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb45-82"><a href="#cb45-82" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_cols    =</span> <span class="fu">c</span>(SubjectID, Protein),</span>
+<span id="cb45-83"><a href="#cb45-83" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> Timepoint,</span>
+<span id="cb45-84"><a href="#cb45-84" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> log2_expr</span>
+<span id="cb45-85"><a href="#cb45-85" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb45-86"><a href="#cb45-86" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(D1) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(D3)) <span class="sc">%&gt;%</span></span>
+<span id="cb45-87"><a href="#cb45-87" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log2_FC_D3_vs_D1 =</span> D3 <span class="sc">-</span> D1)</span>
+<span id="cb45-88"><a href="#cb45-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-89"><a href="#cb45-89" aria-hidden="true" tabindex="-1"></a>ranks_df_D1D3 <span class="ot">&lt;-</span> fc_df_D1D3 <span class="sc">%&gt;%</span></span>
+<span id="cb45-90"><a href="#cb45-90" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Protein) <span class="sc">%&gt;%</span></span>
+<span id="cb45-91"><a href="#cb45-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">meanlog2fc =</span> <span class="fu">mean</span>(log2_FC_D3_vs_D1, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb45-92"><a href="#cb45-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-93"><a href="#cb45-93" aria-hidden="true" tabindex="-1"></a>ranks_df_D1D3 <span class="ot">&lt;-</span> ranks_df_D1D3 <span class="sc">%&gt;%</span></span>
+<span id="cb45-94"><a href="#cb45-94" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb45-95"><a href="#cb45-95" aria-hidden="true" tabindex="-1"></a>    <span class="at">UNIPROT_raw =</span> Protein,</span>
+<span id="cb45-96"><a href="#cb45-96" aria-hidden="true" tabindex="-1"></a>    <span class="at">UNIPROT =</span> <span class="fu">str_replace</span>(Protein, <span class="st">"</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+$"</span>, <span class="st">""</span>),   <span class="co"># removes trailing .&lt;digits&gt;</span></span>
+<span id="cb45-97"><a href="#cb45-97" aria-hidden="true" tabindex="-1"></a>    <span class="at">meanlog2fc =</span> <span class="fu">as.numeric</span>(meanlog2fc)</span>
+<span id="cb45-98"><a href="#cb45-98" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb45-99"><a href="#cb45-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-100"><a href="#cb45-100" aria-hidden="true" tabindex="-1"></a>ranks_df_D1D3 <span class="ot">&lt;-</span> ranks_df_D1D3 <span class="sc">%&gt;%</span></span>
+<span id="cb45-101"><a href="#cb45-101" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(UNIPROT) <span class="sc">%&gt;%</span></span>
+<span id="cb45-102"><a href="#cb45-102" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> <span class="fu">abs</span>(meanlog2fc), <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb45-103"><a href="#cb45-103" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="convert-from-uniprot-to-entrez-and-create-ranked-vector" class="level3">
+<h3 class="anchored" data-anchor-id="convert-from-uniprot-to-entrez-and-create-ranked-vector">convert from uniprot to entrez and create ranked vector</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: AnnotationDbi</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: stats4</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: BiocGenerics</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: generics</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'generics'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:lubridate':
+
+    as.difftime</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:dplyr':
+
+    explain</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    as.difftime, as.factor, as.ordered, intersect, is.element, setdiff,
+    setequal, union</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'BiocGenerics'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:dplyr':
+
+    combine</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    IQR, mad, sd, var, xtabs</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, is.unsorted, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, saveRDS, table, tapply, unique,
+    unsplit, which.max, which.min</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: Biobase</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: IRanges</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: S4Vectors</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'S4Vectors'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:clusterProfiler':
+
+    rename</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:lubridate':
+
+    second, second&lt;-</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:tidyr':
+
+    expand</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:dplyr':
+
+    first, rename</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:SomaDataIO':
+
+    rename</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:utils':
+
+    findMatches</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    expand.grid, I, unname</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'IRanges'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:clusterProfiler':
+
+    slice</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:lubridate':
+
+    %within%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:purrr':
+
+    reduce</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:dplyr':
+
+    collapse, desc, slice</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:SomaDataIO':
+
+    slice</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'AnnotationDbi'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:clusterProfiler':
+
+    select</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:MASS':
+
+    select</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:dplyr':
+
+    select</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code></code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AnnotationDbi)</span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a>map <span class="ot">&lt;-</span> AnnotationDbi<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb82-4"><a href="#cb82-4" aria-hidden="true" tabindex="-1"></a>  org.Hs.eg.db,</span>
+<span id="cb82-5"><a href="#cb82-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">keys     =</span> <span class="fu">unique</span>(ranks_df_D1D2<span class="sc">$</span>UNIPROT),</span>
+<span id="cb82-6"><a href="#cb82-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">keytype  =</span> <span class="st">"UNIPROT"</span>,</span>
+<span id="cb82-7"><a href="#cb82-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">columns  =</span> <span class="fu">c</span>(<span class="st">"ENTREZID"</span>)</span>
+<span id="cb82-8"><a href="#cb82-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb82-9"><a href="#cb82-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(ENTREZID)) <span class="sc">%&gt;%</span></span>
+<span id="cb82-10"><a href="#cb82-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(UNIPROT, ENTREZID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>'select()' returned 1:many mapping between keys and columns</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Join mapping; if multiple UniProt map to the same Entrez, collapse to 1 per Entrez</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>ranks_entrez_df_D1D2 <span class="ot">&lt;-</span> ranks_df_D1D2 <span class="sc">%&gt;%</span></span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(map, <span class="at">by =</span> <span class="st">"UNIPROT"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ENTREZID) <span class="sc">%&gt;%</span></span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> <span class="fu">abs</span>(meanlog2fc), <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb84-7"><a href="#cb84-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-8"><a href="#cb84-8" aria-hidden="true" tabindex="-1"></a>ranks_entrez_df_D2D3 <span class="ot">&lt;-</span> ranks_df_D2D3 <span class="sc">%&gt;%</span></span>
+<span id="cb84-9"><a href="#cb84-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(map, <span class="at">by =</span> <span class="st">"UNIPROT"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-10"><a href="#cb84-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ENTREZID) <span class="sc">%&gt;%</span></span>
+<span id="cb84-11"><a href="#cb84-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> <span class="fu">abs</span>(meanlog2fc), <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-12"><a href="#cb84-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb84-13"><a href="#cb84-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-14"><a href="#cb84-14" aria-hidden="true" tabindex="-1"></a>ranks_entrez_df_D1D3 <span class="ot">&lt;-</span> ranks_df_D1D3 <span class="sc">%&gt;%</span></span>
+<span id="cb84-15"><a href="#cb84-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(map, <span class="at">by =</span> <span class="st">"UNIPROT"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-16"><a href="#cb84-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ENTREZID) <span class="sc">%&gt;%</span></span>
+<span id="cb84-17"><a href="#cb84-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> <span class="fu">abs</span>(meanlog2fc), <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-18"><a href="#cb84-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb84-19"><a href="#cb84-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-20"><a href="#cb84-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Create fgsea-ready named vector</span></span>
+<span id="cb84-21"><a href="#cb84-21" aria-hidden="true" tabindex="-1"></a>ranks_entrez_D1D2 <span class="ot">&lt;-</span> ranks_entrez_df_D1D2<span class="sc">$</span>meanlog2fc</span>
+<span id="cb84-22"><a href="#cb84-22" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(ranks_entrez_D1D2) <span class="ot">&lt;-</span> ranks_entrez_df_D1D2<span class="sc">$</span>ENTREZID</span>
+<span id="cb84-23"><a href="#cb84-23" aria-hidden="true" tabindex="-1"></a>ranks_entrez_D1D2 <span class="ot">&lt;-</span> <span class="fu">sort</span>(ranks_entrez_D1D2, <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb84-24"><a href="#cb84-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-25"><a href="#cb84-25" aria-hidden="true" tabindex="-1"></a>ranks_entrez_D2D3 <span class="ot">&lt;-</span> ranks_entrez_df_D2D3<span class="sc">$</span>meanlog2fc</span>
+<span id="cb84-26"><a href="#cb84-26" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(ranks_entrez_D2D3) <span class="ot">&lt;-</span> ranks_entrez_df_D2D3<span class="sc">$</span>ENTREZID</span>
+<span id="cb84-27"><a href="#cb84-27" aria-hidden="true" tabindex="-1"></a>ranks_entrez_D2D3 <span class="ot">&lt;-</span> <span class="fu">sort</span>(ranks_entrez_D2D3, <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb84-28"><a href="#cb84-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-29"><a href="#cb84-29" aria-hidden="true" tabindex="-1"></a>ranks_entrez_D1D3 <span class="ot">&lt;-</span> ranks_entrez_df_D1D3<span class="sc">$</span>meanlog2fc</span>
+<span id="cb84-30"><a href="#cb84-30" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(ranks_entrez_D1D3) <span class="ot">&lt;-</span> ranks_entrez_df_D1D3<span class="sc">$</span>ENTREZID</span>
+<span id="cb84-31"><a href="#cb84-31" aria-hidden="true" tabindex="-1"></a>ranks_entrez_D1D3 <span class="ot">&lt;-</span> <span class="fu">sort</span>(ranks_entrez_D1D3, <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="run-gobp" class="level3">
+<h3 class="anchored" data-anchor-id="run-gobp">Run GO:BP</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(clusterProfiler)</span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a>gsea_bp <span class="ot">&lt;-</span> <span class="fu">gseGO</span>(</span>
+<span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">geneList      =</span> ranks_entrez_D1D2,</span>
+<span id="cb85-5"><a href="#cb85-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">OrgDb         =</span> org.Hs.eg.db,</span>
+<span id="cb85-6"><a href="#cb85-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">keyType       =</span> <span class="st">"ENTREZID"</span>,</span>
+<span id="cb85-7"><a href="#cb85-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">ont           =</span> <span class="st">"BP"</span>,</span>
+<span id="cb85-8"><a href="#cb85-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">minGSSize     =</span> <span class="dv">4</span>,</span>
+<span id="cb85-9"><a href="#cb85-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">maxGSSize     =</span> <span class="dv">800</span>,</span>
+<span id="cb85-10"><a href="#cb85-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">pvalueCutoff  =</span> <span class="fl">0.05</span>,</span>
+<span id="cb85-11"><a href="#cb85-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">pAdjustMethod =</span> <span class="st">"none"</span>,</span>
+<span id="cb85-12"><a href="#cb85-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>using 'fgsea' for GSEA analysis, please cite Korotkevich et al (2019).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>preparing geneSet collections...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>GSEA analysis...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in preparePathwaysAndStats(pathways, stats, minSize, maxSize, gseaParam, : There are ties in the preranked stats (0.9% of the list).
+The order of those tied genes will be arbitrary, which may produce unexpected results.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>leading edge analysis...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>done...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.data.frame</span>(gsea_bp), <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   ID                                               Description
+GO:0006116 GO:0006116                                            NADH oxidation
+GO:0010811 GO:0010811            positive regulation of cell-substrate adhesion
+GO:0019674 GO:0019674                                     NAD metabolic process
+GO:0007015 GO:0007015                               actin filament organization
+GO:0030593 GO:0030593                                     neutrophil chemotaxis
+GO:0000303 GO:0000303                                    response to superoxide
+GO:0000305 GO:0000305                                response to oxygen radical
+GO:0019430 GO:0019430                            removal of superoxide radicals
+GO:0071450 GO:0071450                       cellular response to oxygen radical
+GO:0071451 GO:0071451                           cellular response to superoxide
+GO:0002446 GO:0002446                              neutrophil mediated immunity
+GO:0043388 GO:0043388                        positive regulation of DNA binding
+GO:0002396 GO:0002396                              MHC protein complex assembly
+GO:0002397 GO:0002397                      MHC class I protein complex assembly
+GO:0002501 GO:0002501         peptide antigen assembly with MHC protein complex
+GO:0002502 GO:0002502 peptide antigen assembly with MHC class I protein complex
+GO:0051640 GO:0051640                                    organelle localization
+GO:0006784 GO:0006784                               heme A biosynthetic process
+GO:0006785 GO:0006785                               heme B biosynthetic process
+GO:0046160 GO:0046160                                  heme a metabolic process
+           setSize enrichmentScore       NES       pvalue     p.adjust
+GO:0006116       4      -0.9701596 -1.781477 8.666412e-05 8.666412e-05
+GO:0010811      31       0.6492011  1.934390 1.760369e-04 1.760369e-04
+GO:0019674       8      -0.8665416 -1.948748 2.448990e-04 2.448990e-04
+GO:0007015      60       0.5308049  1.781228 4.032837e-04 4.032837e-04
+GO:0030593      32       0.6083839  1.829598 1.304511e-03 1.304511e-03
+GO:0000303      14      -0.7259233 -1.934189 1.323118e-03 1.323118e-03
+GO:0000305      14      -0.7259233 -1.934189 1.323118e-03 1.323118e-03
+GO:0019430      14      -0.7259233 -1.934189 1.323118e-03 1.323118e-03
+GO:0071450      14      -0.7259233 -1.934189 1.323118e-03 1.323118e-03
+GO:0071451      14      -0.7259233 -1.934189 1.323118e-03 1.323118e-03
+GO:0002446      11      -0.7387006 -1.822058 2.164216e-03 2.164216e-03
+GO:0043388      11      -0.7274476 -1.794301 2.988658e-03 2.988658e-03
+GO:0002396       4       0.9241048  1.650017 3.169232e-03 3.169232e-03
+GO:0002397       4       0.9241048  1.650017 3.169232e-03 3.169232e-03
+GO:0002501       4       0.9241048  1.650017 3.169232e-03 3.169232e-03
+GO:0002502       4       0.9241048  1.650017 3.169232e-03 3.169232e-03
+GO:0051640      52       0.5025121  1.638660 3.420824e-03 3.420824e-03
+GO:0006784       5      -0.8682925 -1.698157 3.457482e-03 3.457482e-03
+GO:0006785       5      -0.8682925 -1.698157 3.457482e-03 3.457482e-03
+GO:0046160       5      -0.8682925 -1.698157 3.457482e-03 3.457482e-03
+              qvalue rank                   leading_edge
+GO:0006116 0.3865967   48 tags=100%, list=3%, signal=97%
+GO:0010811 0.3865967  272 tags=48%, list=19%, signal=40%
+GO:0019674 0.3865967   48  tags=50%, list=3%, signal=49%
+GO:0007015 0.4774667  273 tags=40%, list=19%, signal=34%
+GO:0030593 0.6266008   70  tags=19%, list=5%, signal=18%
+GO:0000303 0.6266008  272 tags=50%, list=19%, signal=41%
+GO:0000305 0.6266008  272 tags=50%, list=19%, signal=41%
+GO:0019430 0.6266008  272 tags=50%, list=19%, signal=41%
+GO:0071450 0.6266008  272 tags=50%, list=19%, signal=41%
+GO:0071451 0.6266008  272 tags=50%, list=19%, signal=41%
+GO:0002446 0.6726865   81  tags=55%, list=6%, signal=52%
+GO:0043388 0.6726865  147 tags=27%, list=10%, signal=25%
+GO:0002396 0.6726865   86  tags=50%, list=6%, signal=47%
+GO:0002397 0.6726865   86  tags=50%, list=6%, signal=47%
+GO:0002501 0.6726865   86  tags=50%, list=6%, signal=47%
+GO:0002502 0.6726865   86  tags=50%, list=6%, signal=47%
+GO:0051640 0.6726865  280 tags=40%, list=19%, signal=34%
+GO:0006784 0.6726865   72  tags=60%, list=5%, signal=57%
+GO:0006785 0.6726865   72  tags=60%, list=5%, signal=57%
+GO:0046160 0.6726865   72  tags=60%, list=5%, signal=57%
+                                                                                                                       core_enrichment
+GO:0006116                                                                                                               229/1728/2819
+GO:0010811                                                   6422/4192/1435/3717/2932/6789/916/4811/1398/4088/1399/1605/2185/6376/7422
+GO:0019674                                                                                                          4190/229/1728/2819
+GO:0007015 6422/7429/7169/2885/9124/88/389/9475/3717/10095/226/85415/11344/7171/1072/29767/3055/253980/4088/1440/90952/2185/6376/29993
+GO:0030593                                                                                              6288/4192/3929/10059/5294/6372
+GO:0000303                                                                                           5052/655/6648/4151/11315/337/1728
+GO:0000305                                                                                           5052/655/6648/4151/11315/337/1728
+GO:0019430                                                                                           5052/655/6648/4151/11315/337/1728
+GO:0071450                                                                                           5052/655/6648/4151/11315/337/1728
+GO:0071451                                                                                           5052/655/6648/4151/11315/337/1728
+GO:0002446                                                                                                1991/383/1636/5443/2147/6688
+GO:0043388                                                                                                             22933/3146/4318
+GO:0002396                                                                                                                   6892/2923
+GO:0002397                                                                                                                   6892/2923
+GO:0002501                                                                                                                   6892/2923
+GO:0002502                                                                                                                   6892/2923
+GO:0051640           695/10059/9423/3837/5294/51115/6810/10524/27253/55327/7345/11314/8615/23411/1072/1499/55055/55014/55968/8832/9230
+GO:0006784                                                                                                               210/7390/3145
+GO:0006785                                                                                                               210/7390/3145
+GO:0046160                                                                                                               210/7390/3145</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(enrichplot)</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>dotplotD1D2 <span class="ot">&lt;-</span> <span class="fu">dotplot</span>(gsea_bp, <span class="at">showCategory =</span> <span class="dv">7</span>, <span class="at">split =</span> <span class="st">".sign"</span>) <span class="sc">+</span> <span class="fu">facet_grid</span>(.<span class="sc">~</span>.sign)</span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>ridgeplotD1D2 <span class="ot">&lt;-</span> <span class="fu">ridgeplot</span>(gsea_bp, <span class="at">showCategory =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `aes_string()` was deprecated in ggplot2 3.0.0.
+ℹ Please use tidy evaluation idioms with `aes()`.
+ℹ See also `vignette("ggplot2-in-packages")` for more information.
+ℹ The deprecated feature was likely used in the enrichplot package.
+  Please report the issue at
+  &lt;https://github.com/GuangchuangYu/enrichplot/issues&gt;.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Enrichment curve for a specific term (pick one from gsea_bp@result$ID)</span></span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a>enrichplotD1D2 <span class="ot">&lt;-</span> <span class="fu">gseaplot2</span>(gsea_bp, <span class="at">geneSetID =</span> gsea_bp<span class="sc">@</span>result<span class="sc">$</span>ID[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `aes_()` was deprecated in ggplot2 3.0.0.
+ℹ Please use tidy evaluation idioms with `aes()`
+ℹ The deprecated feature was likely used in the enrichplot package.
+  Please report the issue at
+  &lt;https://github.com/GuangchuangYu/enrichplot/issues&gt;.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+ℹ Please use `linewidth` instead.
+ℹ The deprecated feature was likely used in the enrichplot package.
+  Please report the issue at
+  &lt;https://github.com/GuangchuangYu/enrichplot/issues&gt;.</code></pre>
+</div>
+</div>
+</section>
+<section id="draw-2-vs-draw-3" class="level3">
+<h3 class="anchored" data-anchor-id="draw-2-vs-draw-3">Draw 2 vs Draw 3</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>gsea_bp_d2d3 <span class="ot">&lt;-</span> <span class="fu">gseGO</span>(</span>
+<span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">geneList      =</span> ranks_entrez_D2D3,</span>
+<span id="cb99-3"><a href="#cb99-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">OrgDb         =</span> org.Hs.eg.db,</span>
+<span id="cb99-4"><a href="#cb99-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">keyType       =</span> <span class="st">"ENTREZID"</span>,</span>
+<span id="cb99-5"><a href="#cb99-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">ont           =</span> <span class="st">"BP"</span>,</span>
+<span id="cb99-6"><a href="#cb99-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">minGSSize     =</span> <span class="dv">4</span>,</span>
+<span id="cb99-7"><a href="#cb99-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">maxGSSize     =</span> <span class="dv">800</span>,</span>
+<span id="cb99-8"><a href="#cb99-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">pvalueCutoff  =</span> <span class="fl">0.05</span>,</span>
+<span id="cb99-9"><a href="#cb99-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">pAdjustMethod =</span> <span class="st">"none"</span>,</span>
+<span id="cb99-10"><a href="#cb99-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>using 'fgsea' for GSEA analysis, please cite Korotkevich et al (2019).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>preparing geneSet collections...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>GSEA analysis...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in preparePathwaysAndStats(pathways, stats, minSize, maxSize, gseaParam, : There are ties in the preranked stats (0.9% of the list).
+The order of those tied genes will be arbitrary, which may produce unexpected results.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>leading edge analysis...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>done...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.data.frame</span>(gsea_bp_d2d3), <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   ID
+GO:0001953 GO:0001953
+GO:0010812 GO:0010812
+GO:1904063 GO:1904063
+GO:0050830 GO:0050830
+GO:0048266 GO:0048266
+GO:0034104 GO:0034104
+GO:0006911 GO:0006911
+GO:0002714 GO:0002714
+GO:0002891 GO:0002891
+GO:0051254 GO:0051254
+GO:0150146 GO:0150146
+GO:0046851 GO:0046851
+GO:0035313 GO:0035313
+GO:0051928 GO:0051928
+GO:0045893 GO:0045893
+GO:1902680 GO:1902680
+GO:0046849 GO:0046849
+GO:0034766 GO:0034766
+GO:0061041 GO:0061041
+GO:0098883 GO:0098883
+                                                              Description
+GO:0001953                    negative regulation of cell-matrix adhesion
+GO:0010812                 negative regulation of cell-substrate adhesion
+GO:1904063          negative regulation of cation transmembrane transport
+GO:0050830                    defense response to Gram-positive bacterium
+GO:0048266                                    behavioral response to pain
+GO:0034104                       negative regulation of tissue remodeling
+GO:0006911                                       phagocytosis, engulfment
+GO:0002714                positive regulation of B cell mediated immunity
+GO:0002891 positive regulation of immunoglobulin mediated immune response
+GO:0051254                   positive regulation of RNA metabolic process
+GO:0150146                                      cell junction disassembly
+GO:0046851                         negative regulation of bone remodeling
+GO:0035313                    wound healing, spreading of epidermal cells
+GO:0051928                   positive regulation of calcium ion transport
+GO:0045893             positive regulation of DNA-templated transcription
+GO:1902680                positive regulation of RNA biosynthetic process
+GO:0046849                                                bone remodeling
+GO:0034766  negative regulation of monoatomic ion transmembrane transport
+GO:0061041                                    regulation of wound healing
+GO:0098883                                                synapse pruning
+           setSize enrichmentScore       NES       pvalue     p.adjust
+GO:0001953      10       0.8975161  1.970505 1.227047e-05 1.227047e-05
+GO:0010812      19       0.7400535  1.898838 3.695151e-04 3.695151e-04
+GO:1904063      13      -0.8653960 -1.899070 5.701886e-04 5.701886e-04
+GO:0050830      33      -0.7332828 -1.934028 5.970322e-04 5.970322e-04
+GO:0048266       4       0.9488860  1.659254 6.917695e-04 6.917695e-04
+GO:0034104       8      -0.9245700 -1.814760 9.903817e-04 9.903817e-04
+GO:0006911      13       0.7726413  1.820150 1.105561e-03 1.105561e-03
+GO:0002714      12       0.7798904  1.773655 1.134661e-03 1.134661e-03
+GO:0002891      12       0.7798904  1.773655 1.134661e-03 1.134661e-03
+GO:0051254     218      -0.4461079 -1.561956 1.141273e-03 1.141273e-03
+GO:0150146       9       0.8273397  1.777459 1.468664e-03 1.468664e-03
+GO:0046851       5      -0.9547544 -1.723011 1.726318e-03 1.726318e-03
+GO:0035313       6       0.8860474  1.711182 1.881357e-03 1.881357e-03
+GO:0051928      21       0.6768202  1.788818 1.936691e-03 1.936691e-03
+GO:0045893     209      -0.4422995 -1.542185 2.300145e-03 2.300145e-03
+GO:1902680     209      -0.4422995 -1.542185 2.300145e-03 2.300145e-03
+GO:0046849      31      -0.6927814 -1.816085 2.485857e-03 2.485857e-03
+GO:0034766      14      -0.8325237 -1.883965 2.681894e-03 2.681894e-03
+GO:0061041      53       0.5227245  1.665965 2.792586e-03 2.792586e-03
+GO:0098883       7       0.8475533  1.710628 3.006628e-03 3.006628e-03
+              qvalue rank                   leading_edge
+GO:0001953 0.0577358   50  tags=40%, list=3%, signal=39%
+GO:0010812 0.5369988  214 tags=42%, list=15%, signal=36%
+GO:1904063 0.5369988   20  tags=31%, list=1%, signal=31%
+GO:0050830 0.5369988   19  tags=27%, list=1%, signal=28%
+GO:0048266 0.5369988   19  tags=50%, list=1%, signal=49%
+GO:0034104 0.5369988   55  tags=50%, list=4%, signal=48%
+GO:0006911 0.5369988   34  tags=31%, list=2%, signal=30%
+GO:0002714 0.5369988   23  tags=25%, list=2%, signal=25%
+GO:0002891 0.5369988   23  tags=25%, list=2%, signal=25%
+GO:0051254 0.5369988  196 tags=20%, list=14%, signal=20%
+GO:0150146 0.5698753  170 tags=44%, list=12%, signal=39%
+GO:0046851 0.5698753   55  tags=80%, list=4%, signal=77%
+GO:0035313 0.5698753   16  tags=33%, list=1%, signal=33%
+GO:0051928 0.5698753  170 tags=38%, list=12%, signal=34%
+GO:0045893 0.5698753  196 tags=19%, list=14%, signal=19%
+GO:1902680 0.5698753  196 tags=19%, list=14%, signal=19%
+GO:0046849 0.5698753   76  tags=26%, list=5%, signal=25%
+GO:0034766 0.5698753   20  tags=29%, list=1%, signal=28%
+GO:0061041 0.5698753  254 tags=34%, list=18%, signal=29%
+GO:0098883 0.5698753  170 tags=57%, list=12%, signal=51%
+                                                                                                                                                                                                                   core_enrichment
+GO:0001953                                                                                                                                                                                                    4321/7057/10631/5054
+GO:0010812                                                                                                                                                                                4321/7057/10631/5054/1277/6376/5340/4851
+GO:1904063                                                                                                                                                                                                       183/2056/57817/88
+GO:0050830                                                                                                                                                                          613210/7097/283/3606/3569/3929/1401/5320/57817
+GO:0048266                                                                                                                                                                                                               7060/7057
+GO:0034104                                                                                                                                                                                                    4982/3569/6422/57817
+GO:0006911                                                                                                                                                                                                     54209/7057/718/4481
+GO:0002714                                                                                                                                                                                                          7037/54209/718
+GO:0002891                                                                                                                                                                                                          7037/54209/718
+GO:0051254 89780/90523/3627/1387/84444/4779/7097/5617/8536/1634/6774/5465/5345/7157/348/7422/5241/87178/302/3606/5979/79068/8939/7133/183/7132/2972/6696/5741/8048/3624/6469/1440/3309/1388/2056/3569/3082/4192/6422/57817/7136/88
+GO:0150146                                                                                                                                                                                                    54209/718/22943/6376
+GO:0046851                                                                                                                                                                                                    4982/3569/6422/57817
+GO:0035313                                                                                                                                                                                                               4321/1839
+GO:0051928                                                                                                                                                                                 5155/6373/6352/6622/2539/2147/6387/6376
+GO:0045893                  89780/90523/3627/1387/84444/4779/7097/5617/8536/1634/6774/5465/5345/7157/348/7422/5241/302/3606/5979/8939/183/7132/2972/6696/5741/8048/3624/6469/1440/3309/1388/2056/3569/3082/4192/6422/57817/7136/88
+GO:1902680                  89780/90523/3627/1387/84444/4779/7097/5617/8536/1634/6774/5465/5345/7157/348/7422/5241/302/3606/5979/8939/183/7132/2972/6696/5741/8048/3624/6469/1440/3309/1388/2056/3569/3082/4192/6422/57817/7136/88
+GO:0046849                                                                                                                                                                                6696/5741/4982/3952/3569/4192/6422/57817
+GO:0034766                                                                                                                                                                                                       183/2056/57817/88
+GO:0061041                                                                                                                             5155/5196/1839/7057/5154/5270/5054/64094/3818/2147/2048/710/5340/2155/5627/4780/2811/135228
+GO:0098883                                                                                                                                                                                                    54209/718/22943/6376</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(enrichplot)</span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a>dotplotd2d3 <span class="ot">&lt;-</span> <span class="fu">dotplot</span>(gsea_bp_d2d3, <span class="at">showCategory =</span> <span class="dv">7</span>, <span class="at">split =</span> <span class="st">".sign"</span>) <span class="sc">+</span> <span class="fu">facet_grid</span>(.<span class="sc">~</span>.sign)</span>
+<span id="cb108-4"><a href="#cb108-4" aria-hidden="true" tabindex="-1"></a>ridgeplotd2d3 <span class="ot">&lt;-</span> <span class="fu">ridgeplot</span>(gsea_bp_d2d3, <span class="at">showCategory =</span> <span class="dv">10</span>)</span>
+<span id="cb108-5"><a href="#cb108-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-6"><a href="#cb108-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Enrichment curve for a specific term (pick one from gsea_bp@result$ID)</span></span>
+<span id="cb108-7"><a href="#cb108-7" aria-hidden="true" tabindex="-1"></a>enrichplotd2d3 <span class="ot">&lt;-</span> <span class="fu">gseaplot2</span>(gsea_bp_d2d3, <span class="at">geneSetID =</span> gsea_bp<span class="sc">@</span>result<span class="sc">$</span>ID[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="draw-1-vs-draw-3" class="level3">
+<h3 class="anchored" data-anchor-id="draw-1-vs-draw-3">Draw 1 vs Draw 3</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a>gsea_bp_d1d3 <span class="ot">&lt;-</span> <span class="fu">gseGO</span>(</span>
+<span id="cb109-2"><a href="#cb109-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">geneList      =</span> ranks_entrez_D1D3,</span>
+<span id="cb109-3"><a href="#cb109-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">OrgDb         =</span> org.Hs.eg.db,</span>
+<span id="cb109-4"><a href="#cb109-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">keyType       =</span> <span class="st">"ENTREZID"</span>,</span>
+<span id="cb109-5"><a href="#cb109-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">ont           =</span> <span class="st">"BP"</span>,</span>
+<span id="cb109-6"><a href="#cb109-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">minGSSize     =</span> <span class="dv">4</span>,</span>
+<span id="cb109-7"><a href="#cb109-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">maxGSSize     =</span> <span class="dv">800</span>,</span>
+<span id="cb109-8"><a href="#cb109-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">pvalueCutoff  =</span> <span class="fl">0.05</span>,</span>
+<span id="cb109-9"><a href="#cb109-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">pAdjustMethod =</span> <span class="st">"none"</span>,</span>
+<span id="cb109-10"><a href="#cb109-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>using 'fgsea' for GSEA analysis, please cite Korotkevich et al (2019).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>preparing geneSet collections...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>GSEA analysis...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in preparePathwaysAndStats(pathways, stats, minSize, maxSize, gseaParam, : There are ties in the preranked stats (0.9% of the list).
+The order of those tied genes will be arbitrary, which may produce unexpected results.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>leading edge analysis...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>done...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.data.frame</span>(gsea_bp_d1d3), <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   ID
+GO:0009792 GO:0009792
+GO:0065003 GO:0065003
+GO:0043009 GO:0043009
+GO:0006116 GO:0006116
+GO:0150146 GO:0150146
+GO:0070098 GO:0070098
+GO:0098883 GO:0098883
+GO:0000375 GO:0000375
+GO:0000377 GO:0000377
+GO:0000398 GO:0000398
+GO:0019682 GO:0019682
+GO:0019637 GO:0019637
+GO:0019674 GO:0019674
+GO:0002824 GO:0002824
+GO:0072524 GO:0072524
+GO:1990868 GO:1990868
+GO:1990869 GO:1990869
+GO:0002714 GO:0002714
+GO:0002891 GO:0002891
+GO:0032413 GO:0032413
+                                                                                                                                                Description
+GO:0009792                                                                                               embryo development ending in birth or egg hatching
+GO:0065003                                                                                                              protein-containing complex assembly
+GO:0043009                                                                                                                   chordate embryonic development
+GO:0006116                                                                                                                                   NADH oxidation
+GO:0150146                                                                                                                        cell junction disassembly
+GO:0070098                                                                                                             chemokine-mediated signaling pathway
+GO:0098883                                                                                                                                  synapse pruning
+GO:0000375                                                                                                  RNA splicing, via transesterification reactions
+GO:0000377                                                             RNA splicing, via transesterification reactions with bulged adenosine as nucleophile
+GO:0000398                                                                                                                   mRNA splicing, via spliceosome
+GO:0019682                                                                                                     glyceraldehyde-3-phosphate metabolic process
+GO:0019637                                                                                                                organophosphate metabolic process
+GO:0019674                                                                                                                            NAD metabolic process
+GO:0002824 positive regulation of adaptive immune response based on somatic recombination of immune receptors built from immunoglobulin superfamily domains
+GO:0072524                                                                                                   pyridine-containing compound metabolic process
+GO:1990868                                                                                                                            response to chemokine
+GO:1990869                                                                                                                   cellular response to chemokine
+GO:0002714                                                                                                  positive regulation of B cell mediated immunity
+GO:0002891                                                                                   positive regulation of immunoglobulin mediated immune response
+GO:0032413                                                                                    negative regulation of ion transmembrane transporter activity
+           setSize enrichmentScore       NES       pvalue     p.adjust
+GO:0009792      90       0.4621053  1.714373 0.0004006528 0.0004006528
+GO:0065003     144       0.3967161  1.558773 0.0007330982 0.0007330982
+GO:0043009      86       0.4578388  1.689024 0.0007485268 0.0007485268
+GO:0006116       4      -0.9597502 -1.676635 0.0008695323 0.0008695323
+GO:0150146       9       0.8114537  1.758423 0.0009368208 0.0009368208
+GO:0070098      32       0.5923149  1.817240 0.0009468096 0.0009468096
+GO:0098883       7       0.8651145  1.767244 0.0012241936 0.0012241936
+GO:0000375      12      -0.8241757 -1.878755 0.0012570629 0.0012570629
+GO:0000377      12      -0.8241757 -1.878755 0.0012570629 0.0012570629
+GO:0000398      12      -0.8241757 -1.878755 0.0012570629 0.0012570629
+GO:0019682       4      -0.9521166 -1.663299 0.0013656562 0.0013656562
+GO:0019637     137      -0.4241766 -1.588731 0.0015280013 0.0015280013
+GO:0019674       8      -0.8642531 -1.780729 0.0017759530 0.0017759530
+GO:0002824      32       0.5650778  1.733676 0.0025058740 0.0025058740
+GO:0072524      39      -0.6015146 -1.819583 0.0025385433 0.0025385433
+GO:1990868      33       0.5840200  1.804432 0.0026729993 0.0026729993
+GO:1990869      33       0.5840200  1.804432 0.0026729993 0.0026729993
+GO:0002714      12       0.7469003  1.769152 0.0027978498 0.0027978498
+GO:0002891      12       0.7469003  1.769152 0.0027978498 0.0027978498
+GO:0032413       6      -0.8860593 -1.719609 0.0029340535 0.0029340535
+              qvalue rank                   leading_edge
+GO:0009792 0.5875589  293 tags=33%, list=20%, signal=28%
+GO:0065003 0.5875589  221 tags=24%, list=15%, signal=23%
+GO:0043009 0.5875589  293 tags=31%, list=20%, signal=27%
+GO:0006116 0.5875589   63 tags=100%, list=4%, signal=96%
+GO:0150146 0.5875589  135  tags=44%, list=9%, signal=41%
+GO:0070098 0.5875589  491 tags=78%, list=34%, signal=53%
+GO:0098883 0.5875589  135  tags=57%, list=9%, signal=52%
+GO:0000375 0.5875589  147 tags=58%, list=10%, signal=53%
+GO:0000377 0.5875589  147 tags=58%, list=10%, signal=53%
+GO:0000398 0.5875589  147 tags=58%, list=10%, signal=53%
+GO:0019682 0.5875589   74 tags=100%, list=5%, signal=95%
+GO:0019637 0.6026223  156 tags=23%, list=11%, signal=23%
+GO:0019674 0.6465332   63  tags=50%, list=4%, signal=48%
+GO:0002824 0.6645727  111  tags=28%, list=8%, signal=27%
+GO:0072524 0.6645727  123  tags=36%, list=9%, signal=34%
+GO:1990868 0.6645727  491 tags=76%, list=34%, signal=51%
+GO:1990869 0.6645727  491 tags=76%, list=34%, signal=51%
+GO:0002714 0.6645727  111  tags=42%, list=8%, signal=39%
+GO:0002891 0.6645727  111  tags=42%, list=8%, signal=39%
+GO:0032413 0.6645727   13  tags=50%, list=1%, signal=50%
+                                                                                                                                                                                core_enrichment
+GO:0009792                                3227/2885/5155/598/284/836/100/10524/23654/7040/6789/2182/22943/3880/1281/1499/9241/6997/5566/4087/5523/2247/10653/10443/9997/6692/5156/8894/1277/729
+GO:0065003 54209/4710/87178/3329/4312/10059/695/2885/7429/7037/284/253980/3717/2923/389/6892/7923/7040/6789/54788/735/2932/6376/22943/2335/6356/9131/6905/1981/79047/90952/5566/6387/11344/3084
+GO:0043009                                               3227/2885/5155/598/284/836/100/10524/23654/7040/6789/22943/3880/1281/1499/9241/5566/4087/5523/10653/10443/9997/6692/5156/8894/1277/729
+GO:0006116                                                                                                                                                                       1728/4190/2819
+GO:0150146                                                                                                                                                                 718/54209/6376/22943
+GO:0070098                                                   6373/54209/414062/6349/3717/6776/6352/6091/6376/6367/6356/6387/54838/9353/6354/6348/4283/7066/3091/4352/6363/10019/65125/2185/6362
+GO:0098883                                                                                                                                                                 718/54209/6376/22943
+GO:0000375                                                                                                                                                9584/59286/23543/3312/11168/9588/3181
+GO:0000377                                                                                                                                                9584/59286/23543/3312/11168/9588/3181
+GO:0000398                                                                                                                                                9584/59286/23543/3312/11168/9588/3181
+GO:0019682                                                                                                                                                                        229/7086/7167
+GO:0019637                       5580/3630/3157/7360/132/158/2597/5741/5226/10924/4860/471/29789/6888/3939/229/11315/1728/7086/10327/7167/3312/5901/9588/2879/4190/3099/203/2170/2027/2819/1158
+GO:0019674                                                                                                                                                                   229/1728/4190/2819
+GO:0002824                                                                                                                                           718/54209/3329/695/7037/3717/100/5321/7040
+GO:0072524                                                                                                                2597/29968/5226/4860/6888/3939/229/1728/7086/7167/4190/3099/2027/2819
+GO:1990868                                                   6373/54209/414062/6349/3717/6776/6352/6091/6376/6367/6356/6387/54838/9353/6354/6348/4283/7066/3091/4352/6363/10019/65125/2185/6362
+GO:1990869                                                   6373/54209/414062/6349/3717/6776/6352/6091/6376/6367/6356/6387/54838/9353/6354/6348/4283/7066/3091/4352/6363/10019/65125/2185/6362
+GO:0002714                                                                                                                                                              718/54209/695/7037/7040
+GO:0002891                                                                                                                                                              718/54209/695/7037/7040
+GO:0032413                                                                                                                                                                          817/4318/88</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(enrichplot)</span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb118-3"><a href="#cb118-3" aria-hidden="true" tabindex="-1"></a>dotplotd1d3 <span class="ot">&lt;-</span> <span class="fu">dotplot</span>(gsea_bp_d1d3, <span class="at">showCategory =</span> <span class="dv">7</span>, <span class="at">split =</span> <span class="st">".sign"</span>) <span class="sc">+</span> <span class="fu">facet_grid</span>(.<span class="sc">~</span>.sign)</span>
+<span id="cb118-4"><a href="#cb118-4" aria-hidden="true" tabindex="-1"></a>ridgeplotd1d3 <span class="ot">&lt;-</span> <span class="fu">ridgeplot</span>(gsea_bp_d1d3, <span class="at">showCategory =</span> <span class="dv">10</span>)</span>
+<span id="cb118-5"><a href="#cb118-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb118-6"><a href="#cb118-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Enrichment curve for a specific term (pick one from gsea_bp@result$ID)</span></span>
+<span id="cb118-7"><a href="#cb118-7" aria-hidden="true" tabindex="-1"></a>enrichplotd1d3 <span class="ot">&lt;-</span> <span class="fu">gseaplot2</span>(gsea_bp_d1d3, <span class="at">geneSetID =</span> gsea_bp<span class="sc">@</span>result<span class="sc">$</span>ID[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="over-representation-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="over-representation-analysis">Over-representation Analysis</h2>
+<ul>
+<li>use the stable features only from sPLSDA bootstrapping analysis</li>
+<li>compare this to the list of all genes we measured, NOT THE WHOLE GENOME</li>
+</ul>
+<section id="pull-stable-features-from-components-1-and-2-and-convert-to-entrezid" class="level3">
+<h3 class="anchored" data-anchor-id="pull-stable-features-from-components-1-and-2-and-convert-to-entrezid">pull stable features from components 1 and 2 and convert to entrezID</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AnnotationDbi)</span>
+<span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span>
+<span id="cb119-3"><a href="#cb119-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb119-4"><a href="#cb119-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Pull the STABLE features from each component for ORA.</span></span>
+<span id="cb119-5"><a href="#cb119-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb119-6"><a href="#cb119-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1. stable features for component 1 (freq &gt; 0.4)</span></span>
+<span id="cb119-7"><a href="#cb119-7" aria-hidden="true" tabindex="-1"></a>stable_c1 <span class="ot">&lt;-</span> stable_vars_04<span class="sc">$</span>Comp1</span>
+<span id="cb119-8"><a href="#cb119-8" aria-hidden="true" tabindex="-1"></a>stable_c2 <span class="ot">&lt;-</span> stable_vars_04<span class="sc">$</span>Comp2</span>
+<span id="cb119-9"><a href="#cb119-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb119-10"><a href="#cb119-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2. pull the loadings and variable names for all 75 variables in component 1.</span></span>
+<span id="cb119-11"><a href="#cb119-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb119-12"><a href="#cb119-12" aria-hidden="true" tabindex="-1"></a>c1_loadings <span class="ot">&lt;-</span> plsda_result<span class="sc">$</span>loadings<span class="sc">$</span>X[,<span class="dv">1</span>]</span>
+<span id="cb119-13"><a href="#cb119-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb119-14"><a href="#cb119-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 4. Split them into the positive and negative components for interpretability down the line (to know which pathways are up and which are down)</span></span>
+<span id="cb119-15"><a href="#cb119-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb119-16"><a href="#cb119-16" aria-hidden="true" tabindex="-1"></a>c1_pos_uniprot_ids <span class="ot">&lt;-</span> <span class="fu">names</span>(c1_loadings)[c1_loadings <span class="sc">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb119-17"><a href="#cb119-17" aria-hidden="true" tabindex="-1"></a>c1_neg_uniprot_ids <span class="ot">&lt;-</span> <span class="fu">names</span>(c1_loadings)[c1_loadings <span class="sc">&lt;</span> <span class="dv">0</span>]</span>
+<span id="cb119-18"><a href="#cb119-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb119-19"><a href="#cb119-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb119-20"><a href="#cb119-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 5. compare the uniprot IDs to the list of stable features, then remove the suffixes.</span></span>
+<span id="cb119-21"><a href="#cb119-21" aria-hidden="true" tabindex="-1"></a>c1_pos_uniprot_ids_stable <span class="ot">&lt;-</span> <span class="fu">intersect</span>(c1_pos_uniprot_ids, stable_c1)</span>
+<span id="cb119-22"><a href="#cb119-22" aria-hidden="true" tabindex="-1"></a>c1_neg_uniprot_ids_stable <span class="ot">&lt;-</span> <span class="fu">intersect</span>(c1_neg_uniprot_ids, stable_c1)</span>
+<span id="cb119-23"><a href="#cb119-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb119-24"><a href="#cb119-24" aria-hidden="true" tabindex="-1"></a>c1_pos_uniprot_ids_stable <span class="ot">&lt;-</span> c1_pos_uniprot_ids_stable <span class="sc">%&gt;%</span> <span class="fu">str_replace</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+$"</span>,<span class="st">""</span>)</span>
+<span id="cb119-25"><a href="#cb119-25" aria-hidden="true" tabindex="-1"></a>c1_neg_uniprot_ids <span class="ot">&lt;-</span> c1_neg_uniprot_ids_stable <span class="sc">%&gt;%</span> <span class="fu">str_replace</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+$"</span>,<span class="st">""</span>)</span>
+<span id="cb119-26"><a href="#cb119-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb119-27"><a href="#cb119-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Map UniProt -&gt; Entrez</span></span>
+<span id="cb119-28"><a href="#cb119-28" aria-hidden="true" tabindex="-1"></a>pls_pos_map <span class="ot">&lt;-</span> AnnotationDbi<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb119-29"><a href="#cb119-29" aria-hidden="true" tabindex="-1"></a>  org.Hs.eg.db,</span>
+<span id="cb119-30"><a href="#cb119-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">keys =</span> <span class="fu">unique</span>(c1_pos_uniprot_ids_stable),</span>
+<span id="cb119-31"><a href="#cb119-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">keytype =</span> <span class="st">"UNIPROT"</span>,</span>
+<span id="cb119-32"><a href="#cb119-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"ENTREZID"</span>)</span>
+<span id="cb119-33"><a href="#cb119-33" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb119-34"><a href="#cb119-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(ENTREZID)) <span class="sc">%&gt;%</span></span>
+<span id="cb119-35"><a href="#cb119-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(UNIPROT, ENTREZID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>'select()' returned 1:1 mapping between keys and columns</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a>c1_pos_gene_ids <span class="ot">&lt;-</span> <span class="fu">unique</span>(pls_pos_map<span class="sc">$</span>ENTREZID)</span>
+<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>pls_neg_map <span class="ot">&lt;-</span> AnnotationDbi<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb121-4"><a href="#cb121-4" aria-hidden="true" tabindex="-1"></a>  org.Hs.eg.db,</span>
+<span id="cb121-5"><a href="#cb121-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">keys =</span> <span class="fu">unique</span>(c1_neg_uniprot_ids_stable),</span>
+<span id="cb121-6"><a href="#cb121-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">keytype =</span> <span class="st">"UNIPROT"</span>,</span>
+<span id="cb121-7"><a href="#cb121-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"ENTREZID"</span>)</span>
+<span id="cb121-8"><a href="#cb121-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb121-9"><a href="#cb121-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(ENTREZID)) <span class="sc">%&gt;%</span></span>
+<span id="cb121-10"><a href="#cb121-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(UNIPROT, ENTREZID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>'select()' returned 1:1 mapping between keys and columns</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb123"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>c1_neg_gene_ids <span class="ot">&lt;-</span> <span class="fu">unique</span>(pls_neg_map<span class="sc">$</span>ENTREZID)</span>
+<span id="cb123-2"><a href="#cb123-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb123-3"><a href="#cb123-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Repeat for component 2</span></span>
+<span id="cb123-4"><a href="#cb123-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb123-5"><a href="#cb123-5" aria-hidden="true" tabindex="-1"></a>c2_loadings <span class="ot">&lt;-</span> plsda_result<span class="sc">$</span>loadings<span class="sc">$</span>X[,<span class="dv">2</span>]</span>
+<span id="cb123-6"><a href="#cb123-6" aria-hidden="true" tabindex="-1"></a>c2_pos_uniprot_ids <span class="ot">&lt;-</span> <span class="fu">names</span>(c2_loadings)[c2_loadings <span class="sc">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb123-7"><a href="#cb123-7" aria-hidden="true" tabindex="-1"></a>c2_neg_uniprot_ids <span class="ot">&lt;-</span> <span class="fu">names</span>(c2_loadings)[c2_loadings <span class="sc">&lt;</span> <span class="dv">0</span>]</span>
+<span id="cb123-8"><a href="#cb123-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb123-9"><a href="#cb123-9" aria-hidden="true" tabindex="-1"></a>c2_pos_uniprot_ids_stable <span class="ot">&lt;-</span> <span class="fu">intersect</span>(c2_pos_uniprot_ids, stable_c2)</span>
+<span id="cb123-10"><a href="#cb123-10" aria-hidden="true" tabindex="-1"></a>c2_neg_uniprot_ids_stable <span class="ot">&lt;-</span> <span class="fu">intersect</span>(c2_neg_uniprot_ids, stable_c2)</span>
+<span id="cb123-11"><a href="#cb123-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb123-12"><a href="#cb123-12" aria-hidden="true" tabindex="-1"></a>c2_pos_uniprot_ids_stable <span class="ot">&lt;-</span> c2_pos_uniprot_ids_stable <span class="sc">%&gt;%</span> <span class="fu">str_replace</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+$"</span>,<span class="st">""</span>)</span>
+<span id="cb123-13"><a href="#cb123-13" aria-hidden="true" tabindex="-1"></a>c2_neg_uniprot_ids_stable <span class="ot">&lt;-</span> c2_neg_uniprot_ids_stable <span class="sc">%&gt;%</span> <span class="fu">str_replace</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+$"</span>,<span class="st">""</span>)</span>
+<span id="cb123-14"><a href="#cb123-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb123-15"><a href="#cb123-15" aria-hidden="true" tabindex="-1"></a>pls_pos_map2 <span class="ot">&lt;-</span> AnnotationDbi<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb123-16"><a href="#cb123-16" aria-hidden="true" tabindex="-1"></a>  org.Hs.eg.db,</span>
+<span id="cb123-17"><a href="#cb123-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">keys =</span> <span class="fu">unique</span>(c2_pos_uniprot_ids_stable),</span>
+<span id="cb123-18"><a href="#cb123-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">keytype =</span> <span class="st">"UNIPROT"</span>,</span>
+<span id="cb123-19"><a href="#cb123-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"ENTREZID"</span>)</span>
+<span id="cb123-20"><a href="#cb123-20" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb123-21"><a href="#cb123-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(ENTREZID)) <span class="sc">%&gt;%</span></span>
+<span id="cb123-22"><a href="#cb123-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(UNIPROT, ENTREZID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>'select()' returned 1:1 mapping between keys and columns</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb125"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a>c2_pos_gene_ids <span class="ot">&lt;-</span> <span class="fu">unique</span>(pls_pos_map2<span class="sc">$</span>ENTREZID)</span>
+<span id="cb125-2"><a href="#cb125-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb125-3"><a href="#cb125-3" aria-hidden="true" tabindex="-1"></a>pls_neg_map2 <span class="ot">&lt;-</span> AnnotationDbi<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb125-4"><a href="#cb125-4" aria-hidden="true" tabindex="-1"></a>  org.Hs.eg.db,</span>
+<span id="cb125-5"><a href="#cb125-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">keys =</span> <span class="fu">unique</span>(c2_neg_uniprot_ids_stable),</span>
+<span id="cb125-6"><a href="#cb125-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">keytype =</span> <span class="st">"UNIPROT"</span>,</span>
+<span id="cb125-7"><a href="#cb125-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"ENTREZID"</span>)</span>
+<span id="cb125-8"><a href="#cb125-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb125-9"><a href="#cb125-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(ENTREZID)) <span class="sc">%&gt;%</span></span>
+<span id="cb125-10"><a href="#cb125-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(UNIPROT, ENTREZID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>'select()' returned 1:1 mapping between keys and columns</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb127"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a>c2_neg_gene_ids <span class="ot">&lt;-</span> <span class="fu">unique</span>(pls_neg_map2<span class="sc">$</span>ENTREZID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="define-the-background-universe-as-all-proteins-from-our-panel" class="level3">
+<h3 class="anchored" data-anchor-id="define-the-background-universe-as-all-proteins-from-our-panel">define the background “universe” as all proteins from our panel</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a>all_uniprot <span class="ot">&lt;-</span> <span class="fu">names</span>(plsda_result<span class="sc">$</span>loadings<span class="sc">$</span>X[,<span class="dv">1</span>])</span>
+<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a>all_uniprot <span class="ot">&lt;-</span> all_uniprot <span class="sc">%&gt;%</span> <span class="fu">str_replace</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+$"</span>,<span class="st">""</span>)</span>
+<span id="cb128-3"><a href="#cb128-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb128-4"><a href="#cb128-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb128-5"><a href="#cb128-5" aria-hidden="true" tabindex="-1"></a>bg_map <span class="ot">&lt;-</span> AnnotationDbi<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb128-6"><a href="#cb128-6" aria-hidden="true" tabindex="-1"></a>  org.Hs.eg.db,</span>
+<span id="cb128-7"><a href="#cb128-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">keys =</span> <span class="fu">unique</span>(all_uniprot),</span>
+<span id="cb128-8"><a href="#cb128-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">keytype =</span> <span class="st">"UNIPROT"</span>,</span>
+<span id="cb128-9"><a href="#cb128-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">"ENTREZID"</span>)</span>
+<span id="cb128-10"><a href="#cb128-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb128-11"><a href="#cb128-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(ENTREZID)) <span class="sc">%&gt;%</span></span>
+<span id="cb128-12"><a href="#cb128-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(UNIPROT, ENTREZID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>'select()' returned 1:many mapping between keys and columns</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a>all_entrez <span class="ot">&lt;-</span> <span class="fu">unique</span>(bg_map<span class="sc">$</span>ENTREZID)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="run-ora-with-gobp-or-other-desired-databases" class="level3">
+<h3 class="anchored" data-anchor-id="run-ora-with-gobp-or-other-desired-databases">run ORA with GO:BP or other desired databases</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb131"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(clusterProfiler)</span>
+<span id="cb131-2"><a href="#cb131-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ReactomePA)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ReactomePA v1.52.0 Learn more at https://yulab-smu.top/contribution-knowledge-mining/
+
+Please cite:
+
+Guangchuang Yu, Qing-Yu He. ReactomePA: an R/Bioconductor package for
+reactome pathway analysis and visualization. Molecular BioSystems.
+2016, 12(2):477-479</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'ReactomePA'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:lattice':
+
+    dotplot</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb135"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a href="#cb135-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AnnotationDbi)</span>
+<span id="cb135-2"><a href="#cb135-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span>
+<span id="cb135-3"><a href="#cb135-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-4"><a href="#cb135-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ~~~~~~~~~~~~~~~~~~~~~~~~ for component 1 ~~~~~~~~~~~~~~~~~~~~~~~~</span></span>
+<span id="cb135-5"><a href="#cb135-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-6"><a href="#cb135-6" aria-hidden="true" tabindex="-1"></a><span class="co"># ---GO:BP---</span></span>
+<span id="cb135-7"><a href="#cb135-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-8"><a href="#cb135-8" aria-hidden="true" tabindex="-1"></a>ora_bp_c1_pos <span class="ot">&lt;-</span> <span class="fu">enrichGO</span>(</span>
+<span id="cb135-9"><a href="#cb135-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">gene          =</span> c1_pos_gene_ids,</span>
+<span id="cb135-10"><a href="#cb135-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">universe      =</span> all_entrez,          <span class="co"># all proteins in our panel</span></span>
+<span id="cb135-11"><a href="#cb135-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">OrgDb         =</span> org.Hs.eg.db,</span>
+<span id="cb135-12"><a href="#cb135-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">keyType       =</span> <span class="st">"ENTREZID"</span>,</span>
+<span id="cb135-13"><a href="#cb135-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">ont           =</span> <span class="st">"BP"</span>,</span>
+<span id="cb135-14"><a href="#cb135-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">pAdjustMethod =</span> <span class="st">"none"</span>,</span>
+<span id="cb135-15"><a href="#cb135-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">pvalueCutoff  =</span> <span class="fl">0.05</span>,</span>
+<span id="cb135-16"><a href="#cb135-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">qvalueCutoff =</span> <span class="fl">1.0</span>,</span>
+<span id="cb135-17"><a href="#cb135-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">minGSSize =</span> <span class="dv">3</span>,</span>
+<span id="cb135-18"><a href="#cb135-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">maxGSSize =</span> <span class="dv">5000</span>,</span>
+<span id="cb135-19"><a href="#cb135-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">readable      =</span> <span class="cn">TRUE</span></span>
+<span id="cb135-20"><a href="#cb135-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb135-21"><a href="#cb135-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-22"><a href="#cb135-22" aria-hidden="true" tabindex="-1"></a>dotplotc1_pos <span class="ot">&lt;-</span> enrichplot<span class="sc">::</span><span class="fu">dotplot</span>(ora_bp_c1_pos, <span class="at">showCategory =</span> <span class="dv">10</span>)</span>
+<span id="cb135-23"><a href="#cb135-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-24"><a href="#cb135-24" aria-hidden="true" tabindex="-1"></a>ora_bp_c1_neg <span class="ot">&lt;-</span> <span class="fu">enrichGO</span>(</span>
+<span id="cb135-25"><a href="#cb135-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">gene          =</span> c1_neg_gene_ids,</span>
+<span id="cb135-26"><a href="#cb135-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">universe      =</span> all_entrez,</span>
+<span id="cb135-27"><a href="#cb135-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">OrgDb         =</span> org.Hs.eg.db,</span>
+<span id="cb135-28"><a href="#cb135-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">keyType       =</span> <span class="st">"ENTREZID"</span>,</span>
+<span id="cb135-29"><a href="#cb135-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">ont           =</span> <span class="st">"BP"</span>,</span>
+<span id="cb135-30"><a href="#cb135-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">pAdjustMethod =</span> <span class="st">"none"</span>,</span>
+<span id="cb135-31"><a href="#cb135-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">pvalueCutoff  =</span> <span class="fl">0.05</span>,</span>
+<span id="cb135-32"><a href="#cb135-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">qvalueCutoff =</span> <span class="fl">1.0</span>,</span>
+<span id="cb135-33"><a href="#cb135-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">minGSSize =</span> <span class="dv">3</span>,</span>
+<span id="cb135-34"><a href="#cb135-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">maxGSSize =</span> <span class="dv">5000</span>,</span>
+<span id="cb135-35"><a href="#cb135-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">readable      =</span> <span class="cn">TRUE</span></span>
+<span id="cb135-36"><a href="#cb135-36" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb135-37"><a href="#cb135-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-38"><a href="#cb135-38" aria-hidden="true" tabindex="-1"></a>dotplotc1_neg <span class="ot">&lt;-</span> enrichplot<span class="sc">::</span><span class="fu">dotplot</span>(ora_bp_c1_neg, <span class="at">showCategory =</span> <span class="dv">10</span>)</span>
+<span id="cb135-39"><a href="#cb135-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-40"><a href="#cb135-40" aria-hidden="true" tabindex="-1"></a><span class="co"># ---Reactome---</span></span>
+<span id="cb135-41"><a href="#cb135-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-42"><a href="#cb135-42" aria-hidden="true" tabindex="-1"></a>ora_ra_c1_pos <span class="ot">&lt;-</span> <span class="fu">enrichPathway</span>(</span>
+<span id="cb135-43"><a href="#cb135-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">gene =</span> c1_pos_gene_ids,</span>
+<span id="cb135-44"><a href="#cb135-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">universe =</span> all_entrez,</span>
+<span id="cb135-45"><a href="#cb135-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">organism =</span> <span class="st">"human"</span>,</span>
+<span id="cb135-46"><a href="#cb135-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">pvalueCutoff =</span> <span class="fl">0.05</span>,</span>
+<span id="cb135-47"><a href="#cb135-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">pAdjustMethod =</span> <span class="st">"none"</span>,</span>
+<span id="cb135-48"><a href="#cb135-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">qvalueCutoff =</span> <span class="dv">1</span>,</span>
+<span id="cb135-49"><a href="#cb135-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">readable =</span> <span class="cn">TRUE</span></span>
+<span id="cb135-50"><a href="#cb135-50" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb135-51"><a href="#cb135-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-52"><a href="#cb135-52" aria-hidden="true" tabindex="-1"></a>dotplotRAc1_pos<span class="ot">&lt;-</span> enrichplot<span class="sc">::</span><span class="fu">dotplot</span>(ora_ra_c1_pos, <span class="at">showCategory =</span> <span class="dv">10</span>)</span>
+<span id="cb135-53"><a href="#cb135-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-54"><a href="#cb135-54" aria-hidden="true" tabindex="-1"></a>ora_ra_c1_neg <span class="ot">&lt;-</span> <span class="fu">enrichPathway</span>(</span>
+<span id="cb135-55"><a href="#cb135-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">gene =</span> c1_neg_gene_ids,</span>
+<span id="cb135-56"><a href="#cb135-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">universe =</span> all_entrez,</span>
+<span id="cb135-57"><a href="#cb135-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">organism =</span> <span class="st">"human"</span>,</span>
+<span id="cb135-58"><a href="#cb135-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">pvalueCutoff =</span> <span class="fl">0.05</span>,</span>
+<span id="cb135-59"><a href="#cb135-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">pAdjustMethod =</span> <span class="st">"none"</span>,</span>
+<span id="cb135-60"><a href="#cb135-60" aria-hidden="true" tabindex="-1"></a>  <span class="at">qvalueCutoff =</span> <span class="dv">1</span>,</span>
+<span id="cb135-61"><a href="#cb135-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">readable =</span> <span class="cn">TRUE</span></span>
+<span id="cb135-62"><a href="#cb135-62" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb135-63"><a href="#cb135-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-64"><a href="#cb135-64" aria-hidden="true" tabindex="-1"></a>dotplotRAc1_neg <span class="ot">&lt;-</span> enrichplot<span class="sc">::</span><span class="fu">dotplot</span>(ora_ra_c1_neg, <span class="at">showCategory =</span> <span class="dv">10</span>)</span>
+<span id="cb135-65"><a href="#cb135-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-66"><a href="#cb135-66" aria-hidden="true" tabindex="-1"></a><span class="co"># ~~~~~~~~~~~~~~~~~~~~~~`for component 2~~~~~~~~~~~~~~~~~~~~~~~~</span></span>
+<span id="cb135-67"><a href="#cb135-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-68"><a href="#cb135-68" aria-hidden="true" tabindex="-1"></a><span class="co"># ---GO:BP---</span></span>
+<span id="cb135-69"><a href="#cb135-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-70"><a href="#cb135-70" aria-hidden="true" tabindex="-1"></a><span class="co">#positive loadings</span></span>
+<span id="cb135-71"><a href="#cb135-71" aria-hidden="true" tabindex="-1"></a>ora_bp_c2_pos <span class="ot">&lt;-</span> <span class="fu">enrichGO</span>(</span>
+<span id="cb135-72"><a href="#cb135-72" aria-hidden="true" tabindex="-1"></a>  <span class="at">gene          =</span> c2_pos_gene_ids,</span>
+<span id="cb135-73"><a href="#cb135-73" aria-hidden="true" tabindex="-1"></a>  <span class="at">universe      =</span> all_entrez,</span>
+<span id="cb135-74"><a href="#cb135-74" aria-hidden="true" tabindex="-1"></a>  <span class="at">OrgDb         =</span> org.Hs.eg.db,</span>
+<span id="cb135-75"><a href="#cb135-75" aria-hidden="true" tabindex="-1"></a>  <span class="at">keyType       =</span> <span class="st">"ENTREZID"</span>,</span>
+<span id="cb135-76"><a href="#cb135-76" aria-hidden="true" tabindex="-1"></a>  <span class="at">ont           =</span> <span class="st">"BP"</span>,</span>
+<span id="cb135-77"><a href="#cb135-77" aria-hidden="true" tabindex="-1"></a>  <span class="at">pAdjustMethod =</span> <span class="st">"none"</span>,</span>
+<span id="cb135-78"><a href="#cb135-78" aria-hidden="true" tabindex="-1"></a>  <span class="at">pvalueCutoff  =</span> <span class="fl">0.05</span>,</span>
+<span id="cb135-79"><a href="#cb135-79" aria-hidden="true" tabindex="-1"></a>  <span class="at">qvalueCutoff =</span> <span class="fl">1.0</span>,</span>
+<span id="cb135-80"><a href="#cb135-80" aria-hidden="true" tabindex="-1"></a>  <span class="at">minGSSize =</span> <span class="dv">3</span>,</span>
+<span id="cb135-81"><a href="#cb135-81" aria-hidden="true" tabindex="-1"></a>  <span class="at">maxGSSize =</span> <span class="dv">5000</span>,</span>
+<span id="cb135-82"><a href="#cb135-82" aria-hidden="true" tabindex="-1"></a>  <span class="at">readable      =</span> <span class="cn">TRUE</span>               </span>
+<span id="cb135-83"><a href="#cb135-83" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb135-84"><a href="#cb135-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-85"><a href="#cb135-85" aria-hidden="true" tabindex="-1"></a>dotplotc2_pos <span class="ot">&lt;-</span> <span class="fu">dotplot</span>(ora_bp_c2_pos, <span class="at">showCategory =</span> <span class="dv">10</span>)</span>
+<span id="cb135-86"><a href="#cb135-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-87"><a href="#cb135-87" aria-hidden="true" tabindex="-1"></a><span class="co"># negative loadings</span></span>
+<span id="cb135-88"><a href="#cb135-88" aria-hidden="true" tabindex="-1"></a>ora_bp_c2_neg <span class="ot">&lt;-</span> <span class="fu">enrichGO</span>(</span>
+<span id="cb135-89"><a href="#cb135-89" aria-hidden="true" tabindex="-1"></a>  <span class="at">gene          =</span> c2_neg_gene_ids,</span>
+<span id="cb135-90"><a href="#cb135-90" aria-hidden="true" tabindex="-1"></a>  <span class="at">universe      =</span> all_entrez,</span>
+<span id="cb135-91"><a href="#cb135-91" aria-hidden="true" tabindex="-1"></a>  <span class="at">OrgDb         =</span> org.Hs.eg.db,</span>
+<span id="cb135-92"><a href="#cb135-92" aria-hidden="true" tabindex="-1"></a>  <span class="at">keyType       =</span> <span class="st">"ENTREZID"</span>,</span>
+<span id="cb135-93"><a href="#cb135-93" aria-hidden="true" tabindex="-1"></a>  <span class="at">ont           =</span> <span class="st">"BP"</span>,</span>
+<span id="cb135-94"><a href="#cb135-94" aria-hidden="true" tabindex="-1"></a>  <span class="at">pAdjustMethod =</span> <span class="st">"none"</span>,</span>
+<span id="cb135-95"><a href="#cb135-95" aria-hidden="true" tabindex="-1"></a>  <span class="at">pvalueCutoff  =</span> <span class="fl">0.05</span>,</span>
+<span id="cb135-96"><a href="#cb135-96" aria-hidden="true" tabindex="-1"></a>  <span class="at">qvalueCutoff =</span> <span class="fl">1.0</span>,</span>
+<span id="cb135-97"><a href="#cb135-97" aria-hidden="true" tabindex="-1"></a>  <span class="at">minGSSize =</span> <span class="dv">3</span>,</span>
+<span id="cb135-98"><a href="#cb135-98" aria-hidden="true" tabindex="-1"></a>  <span class="at">maxGSSize =</span> <span class="dv">5000</span>,</span>
+<span id="cb135-99"><a href="#cb135-99" aria-hidden="true" tabindex="-1"></a>  <span class="at">readable      =</span> <span class="cn">TRUE</span>               </span>
+<span id="cb135-100"><a href="#cb135-100" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb135-101"><a href="#cb135-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-102"><a href="#cb135-102" aria-hidden="true" tabindex="-1"></a>dotplotc2_neg <span class="ot">&lt;-</span> <span class="fu">dotplot</span>(ora_bp_c2_neg, <span class="at">showCategory =</span> <span class="dv">10</span>)</span>
+<span id="cb135-103"><a href="#cb135-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-104"><a href="#cb135-104" aria-hidden="true" tabindex="-1"></a><span class="co"># ---Reactome---</span></span>
+<span id="cb135-105"><a href="#cb135-105" aria-hidden="true" tabindex="-1"></a><span class="co"># positive loadings</span></span>
+<span id="cb135-106"><a href="#cb135-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-107"><a href="#cb135-107" aria-hidden="true" tabindex="-1"></a>ora_ra_c2_pos <span class="ot">&lt;-</span> <span class="fu">enrichPathway</span>(</span>
+<span id="cb135-108"><a href="#cb135-108" aria-hidden="true" tabindex="-1"></a>  <span class="at">gene =</span> c2_pos_gene_ids,</span>
+<span id="cb135-109"><a href="#cb135-109" aria-hidden="true" tabindex="-1"></a>  <span class="at">universe =</span> all_entrez,</span>
+<span id="cb135-110"><a href="#cb135-110" aria-hidden="true" tabindex="-1"></a>  <span class="at">organism =</span> <span class="st">"human"</span>,</span>
+<span id="cb135-111"><a href="#cb135-111" aria-hidden="true" tabindex="-1"></a>  <span class="at">pvalueCutoff =</span> <span class="fl">0.05</span>,</span>
+<span id="cb135-112"><a href="#cb135-112" aria-hidden="true" tabindex="-1"></a>  <span class="at">pAdjustMethod =</span> <span class="st">"none"</span>,</span>
+<span id="cb135-113"><a href="#cb135-113" aria-hidden="true" tabindex="-1"></a>  <span class="at">qvalueCutoff =</span> <span class="dv">1</span>,</span>
+<span id="cb135-114"><a href="#cb135-114" aria-hidden="true" tabindex="-1"></a>  <span class="at">readable =</span> <span class="cn">TRUE</span></span>
+<span id="cb135-115"><a href="#cb135-115" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb135-116"><a href="#cb135-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-117"><a href="#cb135-117" aria-hidden="true" tabindex="-1"></a>dotplotRAc2_pos <span class="ot">&lt;-</span> <span class="fu">dotplot</span>(ora_ra_c2_pos, <span class="at">showCategory =</span> <span class="dv">10</span>)</span>
+<span id="cb135-118"><a href="#cb135-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-119"><a href="#cb135-119" aria-hidden="true" tabindex="-1"></a><span class="co"># negative loadings</span></span>
+<span id="cb135-120"><a href="#cb135-120" aria-hidden="true" tabindex="-1"></a>ora_ra_c2_neg <span class="ot">&lt;-</span> <span class="fu">enrichPathway</span>(</span>
+<span id="cb135-121"><a href="#cb135-121" aria-hidden="true" tabindex="-1"></a>  <span class="at">gene =</span> c2_neg_gene_ids,</span>
+<span id="cb135-122"><a href="#cb135-122" aria-hidden="true" tabindex="-1"></a>  <span class="at">universe =</span> all_entrez,</span>
+<span id="cb135-123"><a href="#cb135-123" aria-hidden="true" tabindex="-1"></a>  <span class="at">organism =</span> <span class="st">"human"</span>,</span>
+<span id="cb135-124"><a href="#cb135-124" aria-hidden="true" tabindex="-1"></a>  <span class="at">pvalueCutoff =</span> <span class="fl">0.05</span>,</span>
+<span id="cb135-125"><a href="#cb135-125" aria-hidden="true" tabindex="-1"></a>  <span class="at">pAdjustMethod =</span> <span class="st">"none"</span>,</span>
+<span id="cb135-126"><a href="#cb135-126" aria-hidden="true" tabindex="-1"></a>  <span class="at">qvalueCutoff =</span> <span class="dv">1</span>,</span>
+<span id="cb135-127"><a href="#cb135-127" aria-hidden="true" tabindex="-1"></a>  <span class="at">readable =</span> <span class="cn">TRUE</span></span>
+<span id="cb135-128"><a href="#cb135-128" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb135-129"><a href="#cb135-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb135-130"><a href="#cb135-130" aria-hidden="true" tabindex="-1"></a>dotplotRAc2_neg <span class="ot">&lt;-</span> <span class="fu">dotplot</span>(ora_ra_c2_neg, <span class="at">showCategory =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

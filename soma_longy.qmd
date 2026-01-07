@@ -1,0 +1,269 @@
+---
+title: "Soma_longy_analysis"
+format: html
+editor: visual
+---
+
+# Create a conversion key between soma seq ID and protein name
+
+```{r}
+#| eval: false
+#| include: false
+library(dplyr)
+library(readr)
+library(stringr)
+
+# --- Load files ---
+adat_df <- read_csv("master.csv")
+key_df  <- read_csv("key.csv")
+
+
+# --- Clean and standardize IDs ---
+# Extract numeric ID portion from adat column names
+adat_ids <- names(adat_df)
+adat_ids_clean <- adat_ids %>%
+  str_remove("^seq\\.") %>%     # remove leading "seq."
+  str_replace("\\.", "-")       # replace the dot with a dash
+
+# --- Create a mapping ---
+map_df <- tibble(
+  adat_col = adat_ids,
+  key_id = adat_ids_clean
+)
+
+# --- Join to get protein names ---
+map_df <- map_df %>%
+  left_join(key_df, by = c("key_id" = "Somamer_ID"))
+
+# If some don't match, you’ll get NAs
+# You can check missing matches:
+# filter(map_df, is.na(Protein_Name))
+
+# --- Create a row of protein names in the same order as your adat file ---
+protein_row <- map_df$Protein_Name
+
+write.csv("map_df.csv")
+```
+
+
+# Run anova
+
+```{r}
+library(dplyr)
+library(purrr)
+library(broom)
+
+df <- read.csv("soma_by_group.csv")
+protein_cols <- names(df)[3:ncol(df)]
+
+# Run ANOVA for each protein
+anova_results <- map_dfr(protein_cols, function(prot) {
+  model <- aov(df[[prot]] ~ df$group)
+  tidy(model) %>%
+    filter(term == "df$group") %>%
+    mutate(Protein = prot)
+})
+
+anova_results <- anova_results %>%
+  mutate(
+    p_adj_FDR = p.adjust(p.value, method = "fdr"),
+    p_adj_Bonf = p.adjust(p.value, method = "bonferroni")
+  )
+
+sig_proteins <- anova_results %>%
+  filter(p_adj_FDR < 0.05) %>%
+  arrange(p_adj_FDR)
+
+head(sig_proteins)
+
+```
+
+## post-hoc tests
+
+```{r}
+library(emmeans)
+library(dplyr)
+library(purrr)
+library(broom)
+
+# Vector of all protein column names (update if necessary)
+protein_cols <- names(df)[3:ncol(df)]
+
+# Run ANOVA + post-hoc pairwise tests for each protein
+posthoc_results <- map_dfr(protein_cols, function(prot) {
+  model <- aov(df[[prot]] ~ df$group)
+  em <- emmeans(model, pairwise ~ group)
+  
+  # Extract pairwise results
+  pairs <- summary(em$contrasts) %>%
+    as.data.frame() %>%
+    mutate(Protein = prot)
+  
+  return(pairs)
+})
+
+# Adjust for multiple comparisons (across all proteins)
+posthoc_results <- posthoc_results %>%
+  mutate(
+    p_adj_FDR = p.adjust(p.value, method = "fdr")
+  )
+
+# Save if desired
+write.csv(posthoc_results, "posthoc_results_all_proteins.csv", row.names = FALSE)
+
+```
+
+## using emmeans with tukey correction
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(emmeans)
+library(purrr)
+library(broom)
+
+# --- Ensure group is a factor ---
+df$group <- factor(df$group, levels = paste0("draw ", 1:5), ordered = TRUE)
+
+# --- Step 1: ANOVA for all proteins ---
+protein_cols <- names(df)[3:ncol(df)]
+
+anova_results <- map_dfr(protein_cols, function(prot) {
+  model <- aov(df[[prot]] ~ df$group)
+  tidy(model) %>%
+    filter(term == "df$group") %>%
+    mutate(Protein = prot)
+})
+
+# --- Apply FDR correction for ANOVA across all proteins ---
+anova_results <- anova_results %>%
+  mutate(p_adj_FDR = p.adjust(p.value, method = "fdr"))
+
+# --- Step 2: Keep only significant proteins ---
+sig_proteins <- anova_results %>%
+  filter(p_adj_FDR < 0.05) %>%
+  pull(Protein)
+
+# --- Step 3: Run Tukey HSD (or emmeans pairwise with Tukey adjustment) ---
+get_tukey <- function(prot) {
+  model <- aov(df[[prot]] ~ df$group)
+  
+  # Run emmeans with Tukey adjustment
+  em <- emmeans(model, pairwise ~ group)
+  pairs <- summary(em$contrasts, adjust = "tukey") %>% 
+    as.data.frame() %>%
+    mutate(Protein = prot)
+  
+  return(pairs)
+}
+
+posthoc_results <- map_dfr(sig_proteins, get_tukey)
+
+# --- Optional: save results ---
+write.csv(anova_results, "anova_results_FDR.csv", row.names = FALSE)
+write.csv(posthoc_results, "tukey_posthoc_results.csv", row.names = FALSE)
+```
+
+## plotting
+
+```{r}
+library(ggplot2)
+
+# Vector of target proteins
+target_proteins <- c("COAA1","BMP.7","BMP.2")
+
+# Convert to long format for ggplot
+df_long <- df %>%
+  pivot_longer(cols = all_of(target_proteins),
+               names_to = "Protein",
+               values_to = "Expression")
+
+# Summary stats: mean and SE per group
+summary_df <- df_long %>%
+  group_by(Protein, group) %>%
+  summarise(
+    mean_expr = mean(Expression, na.rm = TRUE),
+    se_expr = sd(Expression, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+# Plot
+ggplot(summary_df, aes(x = group, y = mean_expr, fill = group)) +
+  geom_col(position = "dodge", color = "black", width = 0.7) +
+  geom_errorbar(aes(ymin = mean_expr - se_expr, ymax = mean_expr + se_expr),
+                width = 0.2, position = position_dodge(0.7)) +
+  facet_wrap(~ Protein, scales = "free_y", ncol = 3) +
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+    strip.text = element_text(face = "bold", size = 13, margin = margin(b=20)),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none"
+  ) +
+  labs(
+    title = "",
+    x = "Draw",
+    y = "Mean Expression"
+  )
+
+```
+
+# Time Series/Linear mixed effects model
+
+```{r}
+library(lme4)
+library(lmerTest)
+library(tidyverse)
+library(emmeans)
+library(purrr)
+
+df <- read.csv("soma_by_group.csv", header = TRUE)
+
+df_long <- df %>% pivot_longer(
+  cols = 3:ncol(df),
+  names_to = "Protein",
+  values_to = "Expression",
+)
+
+# 3. Fit mixed-effects model per protein
+
+results <- df_long %>%
+  group_by(Protein) %>%
+  nest() %>%
+  mutate(
+    model = map(data, ~ lmer(Expression ~ group + (1 | SampleID), data = .x)),
+    anova_res = map(model, ~ anova(.x)),
+    F_value = map_dbl(anova_res, ~ .x$`F value`[1]),
+    p_value = map_dbl(anova_res, ~ .x$`Pr(>F)`[1])
+  ) %>%
+  ungroup() %>%
+  mutate(FDR = p.adjust(p_value, method = "fdr")) %>%
+  arrange(FDR)
+
+# 4. Extract significant proteins
+sig_proteins <- results %>% filter(FDR < 0.05)
+
+# 5. Optional: top 10 most significant proteins
+top10 <- sig_proteins %>% slice_min(FDR, n = 10)
+
+# 6. Inspect results
+head(top10)
+```
+
+```{r}
+
+# 7. post-hoc testing
+
+sig_posthoc <- sig_proteins$Protein %>% map(function(prot) {
+  df_sub <- df_long %>% filter(Protein == prot)
+  mod <- lmer(Expression ~ group + (1 | SampleID), data = df_sub)
+  emm <- emmeans(mod, ~ group)
+  pw <- pairs(emm, adjust = "tukey") %>% as.data.frame()
+  pw$Protein <- prot
+  return(pw)
+})
+
+sig_posthoc_df <- bind_rows(sig_posthoc)
+
+```

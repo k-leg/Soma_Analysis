@@ -140,8 +140,39 @@ plot1 <- ggplot(summary_df, aes(x = Timepoint, y = mean_expr, fill = Timepoint))
   )
 ```
 
+# tune sPLSDA keepX
 
-# sPLSDA
+```{r}
+library(mixOmics)
+library(dplyr)
+
+set.seed(123)
+
+X  <- df_log2 %>% dplyr::select(where(is.numeric)) %>% as.matrix()
+Y  <- factor(df_log2$Timepoint)
+ID <- df_log2$SubjectID
+
+test_keepX <- c(5, 10, 25, 50, 75, 100, 150)
+ncomp <- 3
+
+tuned <- tune.splsda(
+  X, Y,
+  ncomp = ncomp,
+  test.keepX = test_keepX,
+  validation = "Mfold",
+  folds = 5,          # <-- let mixOmics handle folds
+  nrepeat = 20,       # repeated 5-fold CV
+  measure = "BER",
+  dist = "max.dist",
+  progressBar = TRUE
+)
+
+tuned$choice.keepX
+
+```
+
+
+# Plot the sPLSDA with tuned keepX
 
 ```{r}
 library(mixOmics)
@@ -152,7 +183,7 @@ plsda_matrix <- df_log2 %>% dplyr::select((where(is.numeric)))
 plsda_response <- df_log2$Timepoint
 # run the PLSDA
 
-plsda_result <- splsda(plsda_matrix, plsda_response, ncomp = 3, keepX = c(75,75,75), scale = T) #z scores the data within the plsda
+plsda_result <- splsda(plsda_matrix, plsda_response, ncomp = 3, keepX = c(50,75,10), scale = T) #z scores the data within the plsda
 PLS_scores <- as.data.frame(plsda_result$variates$X)
 PLS_scores$Response <- df_log2$Timepoint
 
@@ -198,8 +229,6 @@ loadings_plot <- ggplot(top20_loadings, aes(x = reorder(Protein, comp1), y = com
     y = "Loading Value"
   ) +
   theme_minimal()
-#dir.create("PLSDA_results", showWarnings = FALSE)
-write_csv(loadings, "PLSDA_results/PLSDA_loadings.csv")
 
 ```
 
@@ -221,7 +250,7 @@ SubjectID <- df_log2$SubjectID
 
 nboot <- 500 # number of iterations
 ncomp <- 3
-keepX <- c(75, 75, 75)
+keepX <- c(50, 75, 10)
 
 
 # cluster bootstrap: sample SUBJECTS with replacement; keep all rows per subject
@@ -268,10 +297,9 @@ stable_vars_04 <- lapply(freq_tables, function(df) {
     pull(Protein)
 })
 
-
 ```
 
-# GSEA and Over-representation Analysis
+# GSEA and Over-representation Analysis on PLSDA output
 
 -   starting with GSEA: get a list of log2 fold changes between groups of interest, as defined by the groups that clustered separately in PLSDA
 
@@ -631,7 +659,7 @@ all_entrez <- unique(bg_map$ENTREZID)
 ```
 
 
-### run ORA with GO:BP or other desired databases
+### run ORA with GO:BP, reactome and/or other desired databases
 ```{r}
 library(clusterProfiler)
 library(ReactomePA)
@@ -719,7 +747,7 @@ ora_bp_c2_pos <- enrichGO(
   readable      = TRUE               
 )
 
-dotplotc2_pos <- dotplot(ora_bp_c2_pos, showCategory = 10)
+dotplotc2_pos <- enrichplot::dotplot(ora_bp_c2_pos, showCategory = 10)
 
 # negative loadings
 ora_bp_c2_neg <- enrichGO(
@@ -736,7 +764,7 @@ ora_bp_c2_neg <- enrichGO(
   readable      = TRUE               
 )
 
-dotplotc2_neg <- dotplot(ora_bp_c2_neg, showCategory = 10)
+dotplotc2_neg <- enrichplot::dotplot(ora_bp_c2_neg, showCategory = 10)
 
 # ---Reactome---
 # positive loadings
@@ -751,7 +779,7 @@ ora_ra_c2_pos <- enrichPathway(
   readable = TRUE
 )
 
-dotplotRAc2_pos <- dotplot(ora_ra_c2_pos, showCategory = 10)
+dotplotRAc2_pos <- enrichplot::dotplot(ora_ra_c2_pos, showCategory = 10)
 
 # negative loadings
 ora_ra_c2_neg <- enrichPathway(
@@ -764,6 +792,290 @@ ora_ra_c2_neg <- enrichPathway(
   readable = TRUE
 )
 
-dotplotRAc2_neg <- dotplot(ora_ra_c2_neg, showCategory = 10)
+dotplotRAc2_neg <- enrichplot::dotplot(ora_ra_c2_neg, showCategory = 10)
 ```
 
+
+# LIMMA for ranks and DEGs
+
+```{r}
+library(limma)
+library(dplyr)
+
+# Create design matrix for timepoint comparison
+
+design <- model.matrix(~ 0 + Timepoint, data = df_log2)
+colnames(design) <- levels(df_log2$Timepoint)
+expr_matrix <- df_log2 %>% dplyr::select((where(is.numeric))) %>% as.matrix()
+expr_matrix_transpose <- expr_matrix %>% t() # transpose the matrix. I found I had to do this.
+
+contrast_matrix <- makeContrasts(
+  D1_v_D2 = D1 - D2,
+  D1_v_D3 = D1 - D3,
+  D1_v_D4 = D1 - D4,
+  D1_v_D5 = D1 - D5,
+  D2_v_D3 = D2 - D3,
+  levels = design
+)
+
+# Estimate Sample Correlation
+SubjectID <- df_log2$SubjectID
+corfit <- duplicateCorrelation(expr_matrix_transpose, design, block = SubjectID)
+
+# Fit the model
+fit <- lmFit(expr_matrix_transpose, design, block = SubjectID, correlation=corfit$consensus)
+fit2 <- contrasts.fit(fit, contrast_matrix)
+fit2 <- eBayes(fit2) #Bayesian noise correction
+
+#Find the top proteins for each contrast. By default, this topTable function uses BH FDR correction. I kept changing number until the significant features were all captured.
+D1_v_D2 <- topTable(fit2, coef = "D1_v_D2", number = 1500)
+D1_v_D3 <- topTable(fit2, coef = "D1_v_D3", number = 1500)
+D1_v_D4 <- topTable(fit2, coef = "D1_v_D4", number = 1500)
+D1_v_D5 <- topTable(fit2, coef = "D1_v_D5", number = 1500)
+D2_v_D3 <- topTable(fit2, coef = "D2_v_D3", number = 1500)
+
+# Find the significant features
+D1_D2_sig <- D1_v_D2 %>% filter(adj.P.Val < 0.05)
+D1_D3_sig <- D1_v_D3 %>% filter(adj.P.Val < 0.05)
+D1_D4_sig <- D1_v_D4 %>% filter(adj.P.Val < 0.05)
+D1_D5_sig <- D1_v_D5 %>% filter(adj.P.Val < 0.05)
+D2_D3_sig <- D2_v_D3 %>% filter(adj.P.Val < 0.05)
+
+```
+
+## Some formatting and conversions
+
+```{r}
+library(dplyr)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+
+# strip probe suffix like ".1" or ".2" from UniProt IDs, choose the uniprot with higher signal, then convert to ensemble. do this for all 4 contrasts.
+
+# D1 vs D2
+
+D1_D2 <- D1_v_D2 %>%
+  tibble::rownames_to_column(var = "Uniprot_ID") %>%
+  mutate(Uniprot_ID = sub("\\.\\d+$", "", Uniprot_ID)) %>%
+  group_by(Uniprot_ID) %>%
+  summarise(stat = t[which.max(abs(t))], .groups = "drop") %>%  # collapse multiple probes per UniProt (keep strongest |t|)
+  mutate(
+    ENTREZID = AnnotationDbi::mapIds(
+      org.Hs.eg.db,
+      keys      = Uniprot_ID,
+      keytype   = "UNIPROT",
+      column    = "ENTREZID",
+      multiVals = "first"   # or "filter" to drop ambiguous UniProts
+    )
+  ) %>%
+  filter(!is.na(ENTREZID)) %>%
+  group_by(ENTREZID) %>%
+  summarise(stat = stat[which.max(abs(stat))], .groups = "drop") %>%   # collapse to one value per Entrez gene
+  arrange(desc(stat))
+
+# D1 vs D3
+
+D1_D3 <- D1_v_D3 %>%
+  tibble::rownames_to_column(var = "Uniprot_ID") %>%
+  mutate(Uniprot_ID = sub("\\.\\d+$", "", Uniprot_ID)) %>%
+  group_by(Uniprot_ID) %>%
+  summarise(stat = t[which.max(abs(t))], .groups = "drop") %>%  # collapse multiple probes per UniProt (keep strongest |t|)
+  mutate(
+    ENTREZID = AnnotationDbi::mapIds(
+      org.Hs.eg.db,
+      keys      = Uniprot_ID,
+      keytype   = "UNIPROT",
+      column    = "ENTREZID",
+      multiVals = "first"   # or "filter" to drop ambiguous UniProts
+    )
+  ) %>%
+  filter(!is.na(ENTREZID)) %>%
+  group_by(ENTREZID) %>%
+  summarise(stat = stat[which.max(abs(stat))], .groups = "drop") %>%   # collapse to one value per Entrez gene
+  arrange(desc(stat))
+
+# D1 vs D4
+
+D1_D4 <- D1_v_D4 %>%
+ tibble::rownames_to_column(var = "Uniprot_ID") %>%
+  mutate(Uniprot_ID = sub("\\.\\d+$", "", Uniprot_ID)) %>%
+  group_by(Uniprot_ID) %>%
+  summarise(stat = t[which.max(abs(t))], .groups = "drop") %>%  # collapse multiple probes per UniProt (keep strongest |t|)
+  mutate(
+    ENTREZID = AnnotationDbi::mapIds(
+      org.Hs.eg.db,
+      keys      = Uniprot_ID,
+      keytype   = "UNIPROT",
+      column    = "ENTREZID",
+      multiVals = "first"   # or "filter" to drop ambiguous UniProts
+    )
+  ) %>%
+  filter(!is.na(ENTREZID)) %>%
+  group_by(ENTREZID) %>%
+  summarise(stat = stat[which.max(abs(stat))], .groups = "drop") %>%   # collapse to one value per Entrez gene
+  arrange(desc(stat))
+
+# D1 vs D5
+
+D1_D5 <- D1_v_D5 %>%
+  tibble::rownames_to_column(var = "Uniprot_ID") %>%
+  mutate(Uniprot_ID = sub("\\.\\d+$", "", Uniprot_ID)) %>%
+  group_by(Uniprot_ID) %>%
+  summarise(stat = t[which.max(abs(t))], .groups = "drop") %>%  # collapse multiple probes per UniProt (keep strongest |t|)
+  mutate(
+    ENTREZID = AnnotationDbi::mapIds(
+      org.Hs.eg.db,
+      keys      = Uniprot_ID,
+      keytype   = "UNIPROT",
+      column    = "ENTREZID",
+      multiVals = "first"   # or "filter" to drop ambiguous UniProts
+    )
+  ) %>%
+  filter(!is.na(ENTREZID)) %>%
+  group_by(ENTREZID) %>%
+  summarise(stat = stat[which.max(abs(stat))], .groups = "drop") %>%   # collapse to one value per Entrez gene
+  arrange(desc(stat))
+
+# D2 vs D3
+
+D2_D3 <- D2_v_D3 %>%
+  tibble::rownames_to_column(var = "Uniprot_ID") %>%
+  mutate(Uniprot_ID = sub("\\.\\d+$", "", Uniprot_ID)) %>%
+  group_by(Uniprot_ID) %>%
+  summarise(stat = t[which.max(abs(t))], .groups = "drop") %>%  # collapse multiple probes per UniProt (keep strongest |t|)
+  mutate(
+    ENTREZID = AnnotationDbi::mapIds(
+      org.Hs.eg.db,
+      keys      = Uniprot_ID,
+      keytype   = "UNIPROT",
+      column    = "ENTREZID",
+      multiVals = "first"   # or "filter" to drop ambiguous UniProts
+    )
+  ) %>%
+  filter(!is.na(ENTREZID)) %>%
+  group_by(ENTREZID) %>%
+  summarise(stat = stat[which.max(abs(stat))], .groups = "drop") %>%   # collapse to one value per Entrez gene
+  arrange(desc(stat))
+```
+
+## ORA on DEGs
+
+### GSEA
+
+```{r}
+library(clusterProfiler)
+library(ReactomePA)
+library(enrichplot)
+
+ranks <- D2_D3$stat
+names(ranks) <- D2_D3$ENTREZID
+ranks <- sort(ranks, decreasing = TRUE)
+
+gsea_bp <- gseGO(
+  geneList      = ranks,
+  OrgDb         = org.Hs.eg.db,
+  keyType       = "ENTREZID",
+  ont           = "BP",
+  minGSSize = 15,
+  maxGSSize = 300,
+  pvalueCutoff  = 0.05,
+  pAdjustMethod = "BH",
+)
+
+gsea_reactome <- ReactomePA::gsePathway(
+  geneList      = ranks,
+  organism      = "human",
+  minGSSize = 15,
+  maxGSSize = 300,
+  pvalueCutoff  = 0.05,
+  pAdjustMethod = "BH",
+  verbose       = FALSE
+)
+
+
+dotplot <- dotplot(gsea_bp, showCategory = 7, split = ".sign") + facet_grid(.~.sign)
+
+
+```
+
+### ORA
+
+note: nothing significant with ORA using this method
+
+```{r}
+library(clusterProfiler)
+library(ReactomePA)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+library(dplyr)
+
+D2up <- D1_D2_sig %>%
+  filter(stat < 0) %>%
+  pull(ENTREZID)
+
+D3up <- D1_D3_sig %>%
+  filter(stat < 0) %>%
+  pull(ENTREZID)
+
+D4up <- D1_D4_sig %>%
+  filter(stat < 0) %>%
+  pull(ENTREZID)
+
+D5up <- D1_D4_sig %>%
+  filter(stat < 0) %>%
+  pull(ENTREZID)
+
+
+# Draw 2
+
+ora_bp_d2 <- enrichGO(
+  gene          = D2up,
+  universe      = all_entrez,
+  OrgDb         = org.Hs.eg.db,
+  keyType       = "ENTREZID",
+  ont           = "BP",
+  pAdjustMethod = "BH",
+  pvalueCutoff  = 0.05,
+  qvalueCutoff = 1.0,
+  readable      = TRUE               
+)
+
+ora_Reactome_d2 <- enrichPathway(
+  gene = D2up,
+  universe = all_entrez,
+  organism = "human",
+  pvalueCutoff = 0.05,
+  pAdjustMethod = "BH",
+  qvalueCutoff = 1,
+  readable = TRUE
+)
+
+
+ # Draw 3
+
+ora_bp_d3 <- enrichGO(
+  gene          = D3up,
+  universe      = all_entrez,
+  OrgDb         = org.Hs.eg.db,
+  keyType       = "ENTREZID",
+  ont           = "BP",
+  pAdjustMethod = "BH",
+  pvalueCutoff  = 0.05,
+  qvalueCutoff = 1.0,
+  readable      = TRUE               
+)
+
+ora_Reactome_d3 <- enrichPathway(
+  gene = D3up,
+  universe = all_entrez,
+  organism = "human",
+  pvalueCutoff = 0.05,
+  pAdjustMethod = "BH",
+  qvalueCutoff = 1,
+  readable = TRUE
+)
+
+```
+
+
+```

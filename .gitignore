@@ -1,6 +1,9 @@
 #MacOS
 .DS_Store
 
+output/
+
+
 #Excel temp files
 ~$*.xlsx
 

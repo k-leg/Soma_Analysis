@@ -9,7 +9,7 @@ editor: visual
 ```{r}
 library("SomaDataIO")
 
-master <- read_adat("~/Documents/R scripts/Soma_project/L0125004423_v5.0_EDTAPlasma.hybNorm.medNormInt.plateScale.calibrate.anmlQC.qcCheck.anmlSMP.20251008.adat")
+master <- read_adat("~/Documents/R scripts/Soma_project/inputs/L0125004423_v5.0_EDTAPlasma.hybNorm.medNormInt.plateScale.calibrate.anmlQC.qcCheck.anmlSMP.20251008.adat")
 
 head(master)
 
@@ -43,7 +43,7 @@ library(readr)
 library(dplyr)
 
 #load in the conversion key csv
-map <- read.csv("seqid_to_uniprot.csv")
+map <- read.csv("inputs/seqid_to_uniprot.csv")
 
 #reformatting (eg. 10023-32 to seq.10023.32)
 map <- map %>% mutate(
@@ -611,7 +611,7 @@ library(tidyverse)
 library(stringr)
 
 
-pathway_dir <- "reactome_pathways"
+pathway_dir <- "inputs/reactome_pathways"
 files <- list.files(pathway_dir, pattern = "\\.tsv$", full.names = TRUE)
 
 # I manually renamed these to include the pathway name. it takes a long time but i could not think of a better way to do it. Much of the below is chatgpt script that I need to spend time understanding.

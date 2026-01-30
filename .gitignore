@@ -1,3 +1,61 @@
+#MacOS
+.DS_Store
+
+#Excel temp files
+~$*.xlsx
+
+# R / RStudio
+.RData
+.Rhistory
+.Rproj.user/
+
+# Data files
+*.csv
+*.tsv
+*.xlsx
+*.xls
+
+# Quarto / rendered output
+/.quarto/
+/_site/
+*.html
+*.pdf
+*.png
+
+# Archives
+*.zip
+*.gz
+# R / RStudio
+.RData
+.Rhistory
+.Rproj.user/
+
+# Data files
+*.csv
+*.tsv
+*.xlsx
+*.xls
+
+# Quarto / rendered output
+/.quarto/
+/_site/
+*.html
+*.pdf
+*.png
+
+# Archives
+*.zip
+*.gz
+# R / RStudio
+.RData
+.Rhistory
+.Rproj.user/
+
+# Data files
+*.csv
+*.tsv
+*.xlsx
+*.xls
 
 # Quarto output
 *.html
